@@ -225,7 +225,7 @@
           <div class="flex gap-4 mb-4 text-sm flex-wrap">
             <span class="text-green-600 font-medium">Present: <span id="att-present">0</span></span>
             <span class="text-red-500 font-medium">Absent: <span id="att-absent">0</span></span>
-            <span class="text-gray-400 font-medium">Not in meeting: <span id="att-none">0</span></span>
+            <span class="text-gray-400 font-medium">Not required: <span id="att-none">0</span></span>
           </div>
           <div id="attendance-body"></div>
         </div>
@@ -272,7 +272,7 @@
             </div>
             <div class="flex items-center gap-2 px-3 py-2 bg-gray-50">
               <span class="w-5 h-5 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold flex-shrink-0">—</span>
-              <div><span class="font-semibold text-gray-500">Not in meeting</span> <span class="text-gray-400">— not their meeting. Completely ignored.</span></div>
+              <div><span class="font-semibold text-gray-500">Not required</span> <span class="text-gray-400">— not their meeting. Completely ignored.</span></div>
             </div>
           </div>
         </div>
@@ -869,7 +869,7 @@ function renderAttendance() {
           const cached = _attCache[o.id];
           const status = cached ? cached.status : 'none';
           const cardCls = status === 'present' ? 'att-card-present' : status === 'absent' ? 'att-card-absent' : 'att-card-none';
-          const label2  = status === 'present' ? 'Present' : status === 'absent' ? 'Absent' : 'Not in meeting';
+          const label2  = status === 'present' ? 'Present' : status === 'absent' ? 'Absent' : 'Not required';
           const color   = status === 'present' ? 'text-green-600' : status === 'absent' ? 'text-red-500' : 'text-gray-400';
           const hint    = status === 'none' ? 'Click to mark Present' : status === 'present' ? 'Click to mark Absent' : 'Click to remove from meeting';
           return `<div id="att-card-${o.id}" class="bg-white rounded-xl p-3 shadow-sm text-center att-card ${cardCls} cursor-pointer"
@@ -909,7 +909,7 @@ async function toggleAttendance(officerId) {
     card.classList.add(newStatus === 'present' ? 'att-card-present' : newStatus === 'absent' ? 'att-card-absent' : 'att-card-none');
   }
   if (labelEl) {
-    labelEl.textContent  = newStatus === 'present' ? 'Present' : newStatus === 'absent' ? 'Absent' : 'Not in meeting';
+    labelEl.textContent  = newStatus === 'present' ? 'Present' : newStatus === 'absent' ? 'Absent' : 'Not required';
     labelEl.className    = `text-[10px] font-medium ${newStatus === 'present' ? 'text-green-600' : newStatus === 'absent' ? 'text-red-500' : 'text-gray-400'}`;
   }
 
