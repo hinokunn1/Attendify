@@ -341,17 +341,27 @@ function renderDashboard() {
   const noEl = document.getElementById('no-summary');
   if (!officers.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
   noEl.style.display = 'none';
-  list.innerHTML = officers.map(o => {
-    const records = attendance.filter(a => a.officer_id === o.id);
-    const p   = records.filter(a => a.status === 'present').length;
-    const pct = records.length ? Math.round(p / records.length * 100) : 0;
+  const ranked = officers.map(o => {
+    const records  = attendance.filter(a => a.officer_id === o.id);
+    const present  = records.filter(a => a.status === 'present').length;
+    const pct      = records.length ? Math.round(present / records.length * 100) : 0;
+    return { o, present, pct };
+  }).sort((a, b) => b.pct - a.pct || b.present - a.present);
+
+  list.innerHTML = ranked.map(({ o, present, pct }, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
     return `<div class="bg-white rounded-lg p-3 shadow-sm flex items-center gap-3">
       <img src="${avatar(o)}" class="w-9 h-9 rounded-full object-cover">
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-800 truncate">${esc(o.name)}</p>
+        <p class="text-sm font-medium text-gray-800 truncate">
+          ${medal ? `<span class="mr-1">${medal}</span>` : ''}${esc(o.name)}
+        </p>
         <p class="text-xs text-gray-400">${esc(o.position)}${o.committee ? ' · ' + esc(o.committee) : ''}</p>
       </div>
-      <span class="text-sm font-semibold text-pink-600">${pct}%</span>
+      <div class="text-right">
+        <p class="text-sm font-semibold text-pink-600">${pct}%</p>
+        <p class="text-[10px] text-gray-400">${present} meeting${present !== 1 ? 's' : ''}</p>
+      </div>
     </div>`;
   }).join('');
 }
