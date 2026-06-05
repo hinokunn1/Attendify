@@ -2,7 +2,7 @@
 // Firebase App
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
-// Firebase Auth
+// Firebase Authentication
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -12,7 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
 
-// Firebase Config
+// YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyBAdWVto0vUd3Wuw_lLLQUrHqizo_2h3Dk",
   authDomain: "attendify-90a4f.firebaseapp.com",
@@ -28,7 +28,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 
-// Elements
+// HTML ELEMENTS
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 
@@ -55,11 +55,12 @@ signupBtn.addEventListener("click", async () => {
       password.value
     );
 
-    alert("Account created!");
+    alert("Account created successfully!");
 
   } catch (error) {
 
     alert(error.message);
+    console.error(error);
 
   }
 
@@ -68,6 +69,11 @@ signupBtn.addEventListener("click", async () => {
 
 // LOGIN
 loginBtn.addEventListener("click", async () => {
+
+  if (!email.value || !password.value) {
+    alert("Please fill all fields.");
+    return;
+  }
 
   try {
 
@@ -82,21 +88,26 @@ loginBtn.addEventListener("click", async () => {
   } catch (error) {
 
     alert(error.message);
+    console.error(error);
 
   }
 
 });
 
 
-// AUTH STATE
+// CHECK LOGIN STATE
 onAuthStateChanged(auth, (user) => {
 
   if (user) {
+
+    console.log("User logged in:", user.email);
 
     authScreen.style.display = "none";
     appContent.style.display = "block";
 
   } else {
+
+    console.log("No user logged in");
 
     authScreen.style.display = "flex";
     appContent.style.display = "none";
