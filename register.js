@@ -1,3 +1,4 @@
+```js
 // Firebase App
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
@@ -28,34 +29,25 @@ const auth = getAuth(app);
 
 
 // Elements
-const email =
-  document.getElementById("email");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
 
-const password =
-  document.getElementById("password");
+const signupBtn = document.getElementById("signupBtn");
+const loginBtn = document.getElementById("loginBtn");
 
-const signupBtn =
-  document.getElementById("signupBtn");
-
-const loginBtn =
-  document.getElementById("loginBtn");
-
-const authScreen =
-  document.getElementById("auth-screen");
-
-const appContent =
-  document.getElementById("app-content");
+const authScreen = document.getElementById("auth-screen");
+const appContent = document.getElementById("app-content");
 
 
 // SIGN UP
 signupBtn.addEventListener("click", async () => {
 
-  if(!email.value || !password.value){
-    alert("Fill all fields");
+  if (!email.value || !password.value) {
+    alert("Please fill all fields.");
     return;
   }
 
-  try{
+  try {
 
     await createUserWithEmailAndPassword(
       auth,
@@ -63,9 +55,9 @@ signupBtn.addEventListener("click", async () => {
       password.value
     );
 
-    alert("Account Created!");
+    alert("Account created!");
 
-  }catch(error){
+  } catch (error) {
 
     alert(error.message);
 
@@ -77,7 +69,7 @@ signupBtn.addEventListener("click", async () => {
 // LOGIN
 loginBtn.addEventListener("click", async () => {
 
-  try{
+  try {
 
     await signInWithEmailAndPassword(
       auth,
@@ -85,9 +77,9 @@ loginBtn.addEventListener("click", async () => {
       password.value
     );
 
-    alert("Login Successful!");
+    alert("Login successful!");
 
-  }catch(error){
+  } catch (error) {
 
     alert(error.message);
 
@@ -99,12 +91,12 @@ loginBtn.addEventListener("click", async () => {
 // AUTH STATE
 onAuthStateChanged(auth, (user) => {
 
-  if(user){
+  if (user) {
 
     authScreen.style.display = "none";
     appContent.style.display = "block";
 
-  }else{
+  } else {
 
     authScreen.style.display = "flex";
     appContent.style.display = "none";
@@ -115,8 +107,9 @@ onAuthStateChanged(auth, (user) => {
 
 
 // LOGOUT
-window.logoutUser = async function(){
+window.logoutUser = async function () {
 
   await signOut(auth);
 
 };
+```
