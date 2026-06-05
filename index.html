@@ -55,6 +55,16 @@
     /* Info modal animation */
     #ranking-modal { transition: opacity .2s; }
     #ranking-modal.hidden { opacity:0; pointer-events:none; }
+
+    /* Officer profile modal */
+    #officer-profile-modal { transition: opacity .2s; }
+    #officer-profile-modal.hidden { opacity:0; pointer-events:none; }
+
+    /* Attendance card active states - pre-defined so no recalc on click */
+    .att-card { transition: box-shadow .1s, opacity .1s; }
+    .att-card-present { box-shadow: 0 0 0 4px #4ade80; opacity: 1; }
+    .att-card-absent  { box-shadow: 0 0 0 4px #fca5a5; opacity: 1; }
+    .att-card-none    { opacity: 0.5; }
   </style>
 </head>
 
@@ -276,26 +286,18 @@
         </div>
 
         <!-- Step 3: tiebreaker -->
-        <div class="mb-4">
+        <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">③ Same rate? More meetings wins.</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-2">
-            Being perfect across 10 required meetings is a bigger deal than being perfect across 2. So if rates are tied, the officer with more required meetings ranks higher.
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Being perfect across 10 required meetings ranks higher than perfect across 2.
           </p>
-          <div class="rounded-xl border border-gray-100 overflow-hidden text-[11px]">
-            <div class="flex items-center justify-between px-3 py-2 bg-white">
-              <div>
-                <span class="font-semibold text-gray-700">Ana</span>
-                <span class="text-gray-400 ml-1">2 attended · 2 required</span>
-              </div>
-              <span class="font-bold text-pink-400">100% · #2</span>
-            </div>
-            <div class="flex items-center justify-between px-3 py-2 bg-pink-50 border-t border-gray-100">
-              <div>
-                <span class="font-semibold text-gray-700">Ben</span>
-                <span class="text-gray-400 ml-1">10 attended · 10 required</span>
-              </div>
-              <span class="font-bold text-pink-600">100% · #1</span>
-            </div>
+        </div>
+
+        <!-- Step 4: threshold -->
+        <div class="mb-4">
+          <p class="text-xs font-bold text-gray-700 mb-1.5">④ 30% threshold to be ranked</p>
+          <div class="bg-amber-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
+            Officers must be required for at least <strong class="text-amber-600">30% of all meetings</strong> to appear in the ranked list. Those below appear in the <span class="font-semibold text-gray-500">Unranked</span> section until they meet the threshold.
           </div>
         </div>
 
@@ -303,6 +305,71 @@
           class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">
           Got it
         </button>
+
+      </div>
+    </div>
+
+    <!-- ── Officer Profile Modal ── -->
+    <div id="officer-profile-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
+
+        <!-- Header with avatar -->
+        <div class="bg-gradient-to-br from-pink-500 to-pink-600 px-5 pt-5 pb-8 relative">
+          <button onclick="closeOfficerProfile()" class="absolute top-4 right-4 text-white/70 hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+          <div class="flex items-center gap-4">
+            <img id="op-avatar" src="" class="w-16 h-16 rounded-full object-cover border-2 border-white/50 flex-shrink-0">
+            <div>
+              <p id="op-name"     class="text-white font-bold text-lg leading-tight"></p>
+              <p id="op-position" class="text-pink-100 text-sm"></p>
+              <p id="op-committee" class="text-pink-200 text-xs mt-0.5"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="grid grid-cols-3 -mt-4 mx-4 bg-white rounded-xl shadow-md overflow-hidden border border-pink-100">
+          <div class="text-center py-3 px-2">
+            <p id="op-rate"     class="text-lg font-bold text-pink-600"></p>
+            <p class="text-[10px] text-gray-400">Rate</p>
+          </div>
+          <div class="text-center py-3 px-2 border-x border-pink-50">
+            <p id="op-present"  class="text-lg font-bold text-green-600"></p>
+            <p class="text-[10px] text-gray-400">Attended</p>
+          </div>
+          <div class="text-center py-3 px-2">
+            <p id="op-required" class="text-lg font-bold text-gray-700"></p>
+            <p class="text-[10px] text-gray-400">Required</p>
+          </div>
+        </div>
+
+        <!-- Rank + progress -->
+        <div class="px-5 pt-5 pb-2">
+          <div id="op-rank-row" class="flex items-center justify-between mb-3">
+            <span class="text-xs text-gray-500 font-medium">Overall Rank</span>
+            <span id="op-rank-badge" class="text-sm font-bold px-3 py-1 rounded-full"></span>
+          </div>
+          <!-- Progress bar -->
+          <div id="op-bar-section" class="mb-4">
+            <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+              <span>Attendance</span>
+              <span id="op-bar-label"></span>
+            </div>
+            <div class="h-2 bg-pink-100 rounded-full overflow-hidden">
+              <div id="op-bar-fill" class="h-full bg-pink-400 rounded-full transition-all duration-700"></div>
+            </div>
+          </div>
+          <!-- Threshold notice if unranked -->
+          <div id="op-threshold-notice" class="hidden mb-4 bg-amber-50 rounded-xl px-3 py-2.5 text-xs text-amber-700 leading-relaxed"></div>
+        </div>
+
+        <!-- Meeting history -->
+        <div class="px-5 pb-5">
+          <p class="text-xs font-bold text-gray-700 mb-2">Meeting History</p>
+          <div id="op-meeting-history" class="space-y-1.5 max-h-40 overflow-y-auto pr-1"></div>
+          <p id="op-no-history" class="text-xs text-gray-300 text-center py-3 hidden">No meeting records yet.</p>
+        </div>
 
       </div>
     </div>
@@ -322,6 +389,17 @@ let currentMeeting   = null;
 let confirmCallback  = null;
 let meetingSortDesc  = true;
 let pendingPhotoB64  = null;
+
+// ── Attendance cache — rebuilt once per openAttendance / renderAttendance call ──
+// Maps officerId -> { status, recordId }
+let _attCache = {};
+
+function buildAttCache() {
+  if (!currentMeeting) return;
+  _attCache = {};
+  const records = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
+  for (const r of records) _attCache[r.officer_id] = { status: r.status, id: r.id };
+}
 
 // ── Firestore wrappers ────────────────────────────────────────────────────────
 async function persistSave(item) {
@@ -362,20 +440,122 @@ function closeRankingInfo() {
 }
 
 // ── Ranking logic ─────────────────────────────────────────────────────────────
-// Required meetings = meetings where officer was marked present OR absent
-// Not in meeting = not counted at all
-// Sort: by rate DESC → tiebreak by required meetings DESC
+// THRESHOLD: officer must be required for >= 30% of total meetings to be ranked
+const RANK_THRESHOLD = 0.30;
+
 function computeRankings(officers, allAttendance) {
-  return officers.map(o => {
+  const totalMeetings = getMeetings().length;
+  const threshold     = Math.ceil(totalMeetings * RANK_THRESHOLD);
+
+  const stats = officers.map(o => {
     const records  = allAttendance.filter(a => a.officer_id === o.id);
     const present  = records.filter(a => a.status === 'present').length;
-    const required = records.length; // present + absent (not-in-meeting records don't exist)
+    const required = records.length;
     const rate     = required > 0 ? present / required : 0;
-    return { o, present, required, rate };
-  }).sort((a, b) => {
-    if (b.rate !== a.rate) return b.rate - a.rate;    // primary: rate
-    return b.required - a.required;                   // tiebreak: more required = higher
+    const ranked   = totalMeetings === 0 || required >= threshold;
+    return { o, present, required, rate, ranked, threshold, totalMeetings };
   });
+
+  const rankedList   = stats.filter(s => s.ranked).sort((a, b) => {
+    if (b.rate !== a.rate) return b.rate - a.rate;
+    return b.required - a.required;
+  });
+  const unrankedList = stats.filter(s => !s.ranked).sort((a, b) => b.required - a.required);
+
+  return { rankedList, unrankedList, threshold, totalMeetings };
+}
+
+// ── Officer Profile Modal ─────────────────────────────────────────────────────
+function openOfficerProfile(officerId) {
+  const o             = allData.find(d => d.id === officerId);
+  if (!o) return;
+  const allAttendance = allData.filter(d => d.type === 'attendance');
+  const meetings      = getMeetings();
+  const { rankedList, unrankedList, threshold, totalMeetings } = computeRankings(getOfficers(), allAttendance);
+
+  const stat       = [...rankedList, ...unrankedList].find(s => s.o.id === officerId);
+  const rankIndex  = rankedList.findIndex(s => s.o.id === officerId);
+  const isRanked   = rankIndex !== -1;
+  const pct        = stat ? Math.round(stat.rate * 100) : 0;
+
+  // Populate header
+  document.getElementById('op-avatar').src      = avatar(o);
+  document.getElementById('op-name').textContent = o.name;
+  document.getElementById('op-position').textContent  = o.position || '';
+  document.getElementById('op-committee').textContent = o.committee ? o.committee : '';
+
+  // Stats strip
+  document.getElementById('op-rate').textContent     = stat ? pct + '%' : '—';
+  document.getElementById('op-present').textContent  = stat ? stat.present : 0;
+  document.getElementById('op-required').textContent = stat ? stat.required : 0;
+
+  // Rank badge
+  const badge    = document.getElementById('op-rank-badge');
+  const rankRow  = document.getElementById('op-rank-row');
+  if (isRanked) {
+    const medal = rankIndex === 0 ? '🥇 #1' : rankIndex === 1 ? '🥈 #2' : rankIndex === 2 ? '🥉 #3' : `#${rankIndex + 1}`;
+    badge.textContent  = medal;
+    const cls = rankIndex === 0 ? 'rank-1' : rankIndex === 1 ? 'rank-2' : rankIndex === 2 ? 'rank-3' : 'rank-other';
+    badge.className    = `text-sm font-bold px-3 py-1 rounded-full ${cls}`;
+    rankRow.classList.remove('hidden');
+  } else {
+    rankRow.classList.add('hidden');
+  }
+
+  // Progress bar
+  const barSection  = document.getElementById('op-bar-section');
+  const thresholdEl = document.getElementById('op-threshold-notice');
+  if (stat && stat.required > 0) {
+    barSection.classList.remove('hidden');
+    document.getElementById('op-bar-label').textContent = `${stat.present}/${stat.required} meetings`;
+    document.getElementById('op-bar-fill').style.width  = pct + '%';
+    document.getElementById('op-bar-fill').className    =
+      `h-full rounded-full transition-all duration-700 ${pct >= 80 ? 'bg-green-400' : pct >= 50 ? 'bg-amber-400' : 'bg-red-400'}`;
+  } else {
+    barSection.classList.add('hidden');
+  }
+
+  if (!isRanked && totalMeetings > 0) {
+    const need = threshold - (stat ? stat.required : 0);
+    thresholdEl.classList.remove('hidden');
+    thresholdEl.textContent = `Needs ${need} more required meeting${need !== 1 ? 's' : ''} to be ranked (threshold: ${threshold} of ${totalMeetings}).`;
+  } else {
+    thresholdEl.classList.add('hidden');
+  }
+
+  // Meeting history — build once from allData
+  const officerRecords = allAttendance.filter(a => a.officer_id === officerId);
+  const historyEl      = document.getElementById('op-meeting-history');
+  const noHistoryEl    = document.getElementById('op-no-history');
+
+  if (!officerRecords.length) {
+    historyEl.innerHTML = '';
+    noHistoryEl.classList.remove('hidden');
+  } else {
+    noHistoryEl.classList.add('hidden');
+    // Sort by date desc
+    const sorted = officerRecords.slice().sort((a, b) => b.meeting_date?.localeCompare(a.meeting_date));
+    historyEl.innerHTML = sorted.map(r => {
+      const icon  = r.status === 'present'
+        ? `<span class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>`
+        : `<span class="w-5 h-5 rounded-full bg-red-100 text-red-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0">✗</span>`;
+      const color = r.status === 'present' ? 'text-green-700' : 'text-red-500';
+      return `<div class="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
+        ${icon}
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-gray-700 truncate">${esc(r.meeting_title)}</p>
+          <p class="text-[10px] text-gray-400">${r.meeting_date}</p>
+        </div>
+        <span class="text-[10px] font-semibold ${color}">${r.status === 'present' ? 'Present' : 'Absent'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('officer-profile-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+function closeOfficerProfile() {
+  document.getElementById('officer-profile-modal').classList.add('hidden');
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -387,7 +567,6 @@ function renderDashboard() {
   document.getElementById('stat-total-officers').textContent = officers.length;
   document.getElementById('stat-total-meetings').textContent = meetings.length;
 
-  // Avg rate uses only required records (present+absent)
   const totalPresent  = allAttendance.filter(a => a.status === 'present').length;
   const totalRequired = allAttendance.length;
   const avgRate = totalRequired ? Math.round(totalPresent / totalRequired * 100) : 0;
@@ -399,27 +578,24 @@ function renderDashboard() {
   if (!officers.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
   noEl.style.display = 'none';
 
-  const ranked   = computeRankings(officers, allAttendance);
-  const topRate  = ranked.length ? ranked[0].rate : 1;
+  const { rankedList, unrankedList, threshold, totalMeetings } = computeRankings(officers, allAttendance);
+  const topRate  = rankedList.length ? rankedList[0].rate : 1;
 
-  const medalIcon      = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
-  const rankBadgeCls   = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-  const rateColor      = pct => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
+  const medalIcon    = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
+  const rankBadgeCls = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+  const rateColor    = pct => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
 
-  list.innerHTML = ranked.map((s, i) => {
+  const renderRow = (s, i, isRanked) => {
     const pct      = Math.round(s.rate * 100);
-    const barWidth = topRate > 0 ? Math.round((s.rate / topRate) * 100) : 0;
-    const medal    = medalIcon(i);
+    const barWidth = topRate > 0 && isRanked ? Math.round((s.rate / topRate) * 100) : pct;
+    const medal    = isRanked ? medalIcon(i) : null;
     const noData   = s.required === 0;
 
     return `<div class="bg-white rounded-xl p-3 shadow-sm flex items-center gap-3">
-      <!-- Rank badge -->
-      <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${rankBadgeCls(i)}">
-        ${medal ? medal : (i + 1)}
+      <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isRanked ? rankBadgeCls(i) : 'bg-gray-100 text-gray-400'}">
+        ${isRanked ? (medal ? medal : (i + 1)) : '—'}
       </div>
-      <!-- Avatar -->
       <img src="${avatar(s.o)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
-      <!-- Name + bar -->
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-gray-800 truncate">${esc(s.o.name)}</p>
         <p class="text-xs text-gray-400 truncate">${esc(s.o.position)}${s.o.committee ? ' · ' + esc(s.o.committee) : ''}</p>
@@ -429,8 +605,10 @@ function renderDashboard() {
                <div class="h-full bg-pink-400 rounded-full bar-fill" style="width:${barWidth}%"></div>
              </div>`
         }
+        ${!isRanked && totalMeetings > 0
+          ? `<p class="text-[10px] text-amber-500 mt-0.5">${s.required}/${threshold} required meetings to rank</p>`
+          : ''}
       </div>
-      <!-- Stats -->
       <div class="text-right flex-shrink-0 ml-1">
         ${noData
           ? `<p class="text-[10px] text-gray-300 leading-tight">Not in<br>any meeting</p>`
@@ -440,7 +618,18 @@ function renderDashboard() {
         }
       </div>
     </div>`;
-  }).join('');
+  };
+
+  let html = rankedList.map((s, i) => renderRow(s, i, true)).join('');
+
+  if (unrankedList.length) {
+    html += `<div class="unranked-section">
+      <p class="text-xs text-gray-400 font-medium mb-2 px-1">Unranked — below 30% threshold</p>
+      ${unrankedList.map((s, i) => renderRow(s, i, false)).join('')}
+    </div>`;
+  }
+
+  list.innerHTML = html;
 }
 
 // ── Officers ──────────────────────────────────────────────────────────────────
@@ -461,11 +650,12 @@ function renderOfficers() {
       <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         ${members.map(o => `
-          <div class="bg-white rounded-xl p-3 shadow-sm text-center relative group">
+          <div class="bg-white rounded-xl p-3 shadow-sm text-center relative group cursor-pointer hover:ring-2 hover:ring-pink-200 transition"
+               onclick="openOfficerProfile('${o.id}')">
             <img src="${avatar(o)}" class="w-16 h-16 mx-auto rounded-full object-cover mb-2">
             <p class="text-sm font-semibold text-gray-800 truncate">${esc(o.name)}</p>
             <p class="text-xs text-gray-400">${esc(o.position)}</p>
-            <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+            <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition" onclick="event.stopPropagation()">
               <button onclick="editOfficer('${o.id}')"   class="text-gray-400 hover:text-pink-500"><i data-lucide="edit"    class="w-3.5 h-3.5"></i></button>
               <button onclick="deleteOfficer('${o.id}')" class="text-gray-400 hover:text-red-500"> <i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </div>
@@ -636,16 +826,19 @@ function openAttendance(meetingId) {
   document.getElementById('attendance-view').classList.remove('hidden');
   document.getElementById('attendance-title').textContent = currentMeeting.meeting_title;
   document.getElementById('att-search').value = '';
+  buildAttCache();
   renderAttendance();
 }
 function closeAttendance() {
   if (!currentMeeting) return;
   currentMeeting = null;
+  _attCache = {};
   document.getElementById('attendance-view').classList.add('hidden');
   document.getElementById('meetings-list').style.display    = '';
   document.getElementById('meetings-toolbar').style.display = '';
   renderMeetings();
 }
+
 function renderAttendance() {
   if (!currentMeeting) return;
   const q        = (document.getElementById('att-search')?.value||'').toLowerCase();
@@ -654,10 +847,15 @@ function renderAttendance() {
     (o.committee||'').toLowerCase().includes(q) ||
     (o.position ||'').toLowerCase().includes(q)
   );
-  const records     = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
+
+  // Count from cache
+  let present = 0, absent = 0;
   const allOfficers = getOfficers();
-  const present = records.filter(r => r.status==='present').length;
-  const absent  = records.filter(r => r.status==='absent').length;
+  for (const o of allOfficers) {
+    const cached = _attCache[o.id];
+    if (cached?.status === 'present') present++;
+    else if (cached?.status === 'absent') absent++;
+  }
   document.getElementById('att-present').textContent = present;
   document.getElementById('att-absent').textContent  = absent;
   document.getElementById('att-none').textContent    = allOfficers.length - present - absent;
@@ -668,40 +866,81 @@ function renderAttendance() {
       <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         ${members.map(o => {
-          const rec    = records.find(r => r.officer_id===o.id);
-          const status = rec ? rec.status : 'none';
-          const ring   = status==='present' ? 'ring-4 ring-green-400' : status==='absent' ? 'ring-4 ring-red-300' : '';
-          const dim    = status==='none' ? 'opacity-50' : '';
-          const label2 = status==='present' ? 'Present' : status==='absent' ? 'Absent' : 'Not in meeting';
-          const color  = status==='present' ? 'text-green-600' : status==='absent' ? 'text-red-500' : 'text-gray-400';
-          const hint   = status==='none' ? 'Click to mark Present' : status==='present' ? 'Click to mark Absent' : 'Click to remove from meeting';
-          return `<div class="bg-white rounded-xl p-3 shadow-sm text-center ${ring} ${dim} transition cursor-pointer"
+          const cached = _attCache[o.id];
+          const status = cached ? cached.status : 'none';
+          const cardCls = status === 'present' ? 'att-card-present' : status === 'absent' ? 'att-card-absent' : 'att-card-none';
+          const label2  = status === 'present' ? 'Present' : status === 'absent' ? 'Absent' : 'Not in meeting';
+          const color   = status === 'present' ? 'text-green-600' : status === 'absent' ? 'text-red-500' : 'text-gray-400';
+          const hint    = status === 'none' ? 'Click to mark Present' : status === 'present' ? 'Click to mark Absent' : 'Click to remove from meeting';
+          return `<div id="att-card-${o.id}" class="bg-white rounded-xl p-3 shadow-sm text-center att-card ${cardCls} cursor-pointer"
                        onclick="toggleAttendance('${o.id}')" title="${hint}">
             <img src="${avatar(o)}" class="w-14 h-14 mx-auto rounded-full object-cover mb-2">
             <p class="text-xs font-semibold text-gray-800 truncate">${esc(o.name)}</p>
-            <span class="text-[10px] font-medium ${color}">${label2}</span>
+            <span id="att-label-${o.id}" class="text-[10px] font-medium ${color}">${label2}</span>
           </div>`;
         }).join('')}
       </div>
     </div>`).join('');
 }
+
+// ── Optimised toggle: update DOM directly, no full re-render ──────────────────
 async function toggleAttendance(officerId) {
   if (!currentMeeting) return;
-  const records = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
-  const rec     = records.find(r => r.officer_id===officerId);
-  if (!rec) {
-    const item = { type:'attendance', id:genId(),
-      meeting_title:currentMeeting.meeting_title, meeting_date:currentMeeting.meeting_date,
-      officer_id:officerId, status:'present' };
-    allData.push(item); await persistSave(item);
-  } else if (rec.status==='present') {
-    allData.find(d => d.id===rec.id).status = 'absent';
-    await persistSave(allData.find(d => d.id===rec.id));
+
+  const cached     = _attCache[officerId];
+  const card       = document.getElementById('att-card-' + officerId);
+  const labelEl    = document.getElementById('att-label-' + officerId);
+
+  // Determine next state
+  let newStatus, oldRecordId;
+  if (!cached) {
+    newStatus = 'present';
+  } else if (cached.status === 'present') {
+    newStatus    = 'absent';
+    oldRecordId  = cached.id;
   } else {
-    await persistDelete(rec.id);
-    allData = allData.filter(d => d.id!==rec.id);
+    newStatus    = 'none';
+    oldRecordId  = cached.id;
   }
-  renderAttendance(); renderDashboard();
+
+  // ── Update DOM immediately (zero perceived lag) ──
+  if (card) {
+    card.classList.remove('att-card-present','att-card-absent','att-card-none');
+    card.classList.add(newStatus === 'present' ? 'att-card-present' : newStatus === 'absent' ? 'att-card-absent' : 'att-card-none');
+  }
+  if (labelEl) {
+    labelEl.textContent  = newStatus === 'present' ? 'Present' : newStatus === 'absent' ? 'Absent' : 'Not in meeting';
+    labelEl.className    = `text-[10px] font-medium ${newStatus === 'present' ? 'text-green-600' : newStatus === 'absent' ? 'text-red-500' : 'text-gray-400'}`;
+  }
+
+  // ── Update counter display ──
+  const prevStatus = cached ? cached.status : 'none';
+  const pEl = document.getElementById('att-present');
+  const aEl = document.getElementById('att-absent');
+  const nEl = document.getElementById('att-none');
+  let p = parseInt(pEl.textContent), a = parseInt(aEl.textContent), n = parseInt(nEl.textContent);
+  if (prevStatus === 'present') p--; else if (prevStatus === 'absent') a--; else n--;
+  if (newStatus  === 'present') p++; else if (newStatus  === 'absent') a++; else n++;
+  pEl.textContent = p; aEl.textContent = a; nEl.textContent = n;
+
+  // ── Persist & update allData + cache in background ──
+  if (newStatus === 'present') {
+    const item = { type:'attendance', id:genId(),
+      meeting_title: currentMeeting.meeting_title, meeting_date: currentMeeting.meeting_date,
+      officer_id: officerId, status: 'present' };
+    allData.push(item);
+    _attCache[officerId] = { status: 'present', id: item.id };
+    await persistSave(item);
+  } else if (newStatus === 'absent') {
+    const rec = allData.find(d => d.id === oldRecordId);
+    if (rec) { rec.status = 'absent'; _attCache[officerId] = { status: 'absent', id: rec.id }; await persistSave(rec); }
+  } else {
+    await persistDelete(oldRecordId);
+    allData = allData.filter(d => d.id !== oldRecordId);
+    delete _attCache[officerId];
+  }
+
+  renderDashboard();
 }
 
 // ── Confirm dialog ────────────────────────────────────────────────────────────
@@ -728,7 +967,7 @@ function esc(str) {
 }
 function renderAll() {
   renderDashboard(); renderOfficers(); renderMeetings();
-  if (currentMeeting) renderAttendance();
+  if (currentMeeting) { buildAttCache(); renderAttendance(); }
 }
 
 // Don't call renderAll() here — register.js calls it after data loads
