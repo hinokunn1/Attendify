@@ -703,15 +703,8 @@ function renderAll() {
 }
 
 // Don't call renderAll() here — register.js calls it after data loads
-lucide.createIcons();
-
-            if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("Service Worker Registered"))
-      .catch(err => console.log("SW registration failed:", err));
-  });
-              
+lucide.createIcons();              
+    
 </script>
   </div>
 </body>
