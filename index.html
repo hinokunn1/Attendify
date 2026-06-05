@@ -132,9 +132,10 @@
 
         <div class="flex items-center justify-between mb-3">
           <h2 class="font-semibold text-gray-800">Officer Rankings</h2>
-          <div class="flex items-center gap-1.5 text-[10px] text-gray-400 bg-white rounded-lg px-2 py-1 shadow-sm">
-            <span class="w-2 h-2 rounded-full bg-pink-400 inline-block"></span>60% rate
-            <span class="w-2 h-2 rounded-full bg-pink-200 inline-block ml-1"></span>40% participation
+          <div class="flex items-center gap-2 text-[10px] bg-white rounded-lg px-2 py-1 shadow-sm">
+            <span class="font-bold text-green-600">●</span><span class="text-gray-400">≥80%</span>
+            <span class="font-bold text-amber-500 ml-1">●</span><span class="text-gray-400">≥50%</span>
+            <span class="font-bold text-red-500 ml-1">●</span><span class="text-gray-400">&lt;50%</span>
           </div>
         </div>
 
@@ -358,12 +359,14 @@ function renderDashboard() {
   const rankBadgeClass = (i) => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
 
   const renderRow = (s, rankIndex) => {
-    const pct        = Math.round(s.attendanceRate * 100);
-    const scorePct   = Math.round(s.weightedScore * 100);
-    const barWidth   = topScore > 0 ? Math.round((s.weightedScore / topScore) * 100) : 0;
-    const medal      = medalIcon(rankIndex);
-    const badgeCls   = rankBadgeClass(rankIndex);
-    const rankNum    = rankIndex + 1;
+    const pct      = Math.round(s.attendanceRate * 100);
+    const barWidth = topScore > 0 ? Math.round((s.weightedScore / topScore) * 100) : 0;
+    const medal    = medalIcon(rankIndex);
+    const badgeCls = rankBadgeClass(rankIndex);
+    const rankNum  = rankIndex + 1;
+
+    // Colour the rate: green ≥80, amber ≥50, red <50
+    const rateColor = pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
 
     return `<div class="bg-white rounded-xl p-3 shadow-sm flex items-center gap-3">
       <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${badgeCls}">
@@ -373,14 +376,15 @@ function renderDashboard() {
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-gray-800 truncate">${esc(s.o.name)}</p>
         <p class="text-xs text-gray-400 truncate">${esc(s.o.position)}${s.o.committee ? ' · ' + esc(s.o.committee) : ''}</p>
-        <!-- Score bar -->
         <div class="mt-1.5 h-1.5 bg-pink-100 rounded-full overflow-hidden w-full">
           <div class="h-full bg-pink-400 rounded-full score-bar-fill" style="width:${barWidth}%"></div>
         </div>
       </div>
-      <div class="text-right flex-shrink-0 ml-1">
-        <p class="text-sm font-bold text-pink-600">${scorePct}<span class="text-[10px] font-normal text-pink-400">pts</span></p>
-        <p class="text-[10px] text-gray-400">${pct}% · ${s.present} mtg${s.present !== 1 ? 's' : ''}</p>
+      <div class="text-right flex-shrink-0 ml-1 space-y-0.5">
+        <p class="text-sm font-bold ${rateColor}">${pct}%
+          <span class="text-[10px] font-normal text-gray-400">rate</span>
+        </p>
+        <p class="text-[10px] text-gray-400">${s.present} of ${getMeetings().length} meetings</p>
       </div>
     </div>`;
   };
