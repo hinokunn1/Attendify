@@ -282,405 +282,428 @@
   </div>
 
   <script>
-  // ── Storage ──────────────────────────────────────────────────────────────────
-  const STORAGE_KEY = 'sslg_data';
-  function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
-  function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-  function genId()  { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-  // ── State ────────────────────────────────────────────────────────────────────
-  let allData          = loadData();
-  let editingOfficerId = null;
-  let editingMeetingId = null;
-  let currentMeeting   = null;
-  let confirmCallback  = null;
-  let meetingSortDesc  = true;
-  let pendingPhotoB64  = null;   // base64 string of chosen photo, or null
+// ── State ────────────────────────────────────────────────────────────────────
+// allData and currentUserId are set by register.js after login
+window.allData          = window.allData || [];
+window.currentUserId    = window.currentUserId || null;
+let editingOfficerId    = null;
+let editingMeetingId    = null;
+let currentMeeting      = null;
+let confirmCallback     = null;
+let meetingSortDesc     = true;
+let pendingPhotoB64     = null;
 
-  // ── Getters ──────────────────────────────────────────────────────────────────
-  function getOfficers()  { return allData.filter(d => d.type === 'officer'); }
-  function getMeetings()  { return allData.filter(d => d.type === 'meeting'); }
-  function getAttendance(title, date) {
-    return allData.filter(d => d.type === 'attendance' && d.meeting_title === title && d.meeting_date === date);
-  }
-  function getCommittees() {
-    const s = new Set(getOfficers().map(o => (o.committee || '').trim()).filter(Boolean));
-    return [...s].sort();
-  }
+// ── Firestore save/delete wrappers ───────────────────────────────────────────
+async function persistSave(item) {
+  if (window.currentUserId) await window.fsSaveItem(window.currentUserId, item);
+}
+async function persistDelete(itemId) {
+  if (window.currentUserId) await window.fsDeleteItem(window.currentUserId, itemId);
+}
 
-  // ── Tabs ─────────────────────────────────────────────────────────────────────
-  function switchTab(tab) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById('view-' + tab).classList.add('active');
-    document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active'); b.classList.add('text-gray-500'); });
-    const btn = document.getElementById('tab-' + tab);
-    btn.classList.add('tab-active'); btn.classList.remove('text-gray-500');
-    if (tab === 'meetings') closeAttendance();
-  }
+// ── Getters ──────────────────────────────────────────────────────────────────
+function getOfficers()  { return allData.filter(d => d.type === 'officer'); }
+function getMeetings()  { return allData.filter(d => d.type === 'meeting'); }
+function getAttendance(title, date) {
+  return allData.filter(d => d.type === 'attendance' && d.meeting_title === title && d.meeting_date === date);
+}
+function getCommittees() {
+  const s = new Set(getOfficers().map(o => (o.committee || '').trim()).filter(Boolean));
+  return [...s].sort();
+}
 
-  // ── Dashboard ────────────────────────────────────────────────────────────────
-  function renderDashboard() {
-    const officers   = getOfficers();
-    const meetings   = getMeetings();
-    const attendance = allData.filter(d => d.type === 'attendance');
-    document.getElementById('stat-total-officers').textContent = officers.length;
-    document.getElementById('stat-total-meetings').textContent = meetings.length;
-    const present = attendance.filter(a => a.status === 'present').length;
-    const rate    = attendance.length ? Math.round(present / attendance.length * 100) : 0;
-    document.getElementById('stat-attendance-rate').textContent = rate + '%';
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active'); b.classList.add('text-gray-500'); });
+  const btn = document.getElementById('tab-' + tab);
+  btn.classList.add('tab-active'); btn.classList.remove('text-gray-500');
+  if (tab === 'meetings') closeAttendance();
+}
 
-    const list = document.getElementById('officer-summary-list');
-    const noEl = document.getElementById('no-summary');
-    if (!officers.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
-    noEl.style.display = 'none';
-    list.innerHTML = officers.map(o => {
-      const records = attendance.filter(a => a.officer_id === o.id);
-      const p   = records.filter(a => a.status === 'present').length;
-      const pct = records.length ? Math.round(p / records.length * 100) : 0;
-      return `<div class="bg-white rounded-lg p-3 shadow-sm flex items-center gap-3">
-        <img src="${avatar(o)}" class="w-9 h-9 rounded-full object-cover">
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-800 truncate">${esc(o.name)}</p>
-          <p class="text-xs text-gray-400">${esc(o.position)}${o.committee ? ' · ' + esc(o.committee) : ''}</p>
-        </div>
-        <span class="text-sm font-semibold text-pink-600">${pct}%</span>
-      </div>`;
-    }).join('');
-  }
+// ── Dashboard ────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const officers   = getOfficers();
+  const meetings   = getMeetings();
+  const attendance = allData.filter(d => d.type === 'attendance');
+  document.getElementById('stat-total-officers').textContent = officers.length;
+  document.getElementById('stat-total-meetings').textContent = meetings.length;
+  const present = attendance.filter(a => a.status === 'present').length;
+  const rate    = attendance.length ? Math.round(present / attendance.length * 100) : 0;
+  document.getElementById('stat-attendance-rate').textContent = rate + '%';
 
-  // ── Officers ─────────────────────────────────────────────────────────────────
-  function renderOfficers() {
-    const q = (document.getElementById('officer-search')?.value || '').toLowerCase();
-    let officers = getOfficers().filter(o =>
-      o.name.toLowerCase().includes(q) ||
-      (o.committee || '').toLowerCase().includes(q) ||
-      (o.position  || '').toLowerCase().includes(q)
-    );
+  const list = document.getElementById('officer-summary-list');
+  const noEl = document.getElementById('no-summary');
+  if (!officers.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
+  noEl.style.display = 'none';
+  list.innerHTML = officers.map(o => {
+    const records = attendance.filter(a => a.officer_id === o.id);
+    const p   = records.filter(a => a.status === 'present').length;
+    const pct = records.length ? Math.round(p / records.length * 100) : 0;
+    return `<div class="bg-white rounded-lg p-3 shadow-sm flex items-center gap-3">
+      <img src="${avatar(o)}" class="w-9 h-9 rounded-full object-cover">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-800 truncate">${esc(o.name)}</p>
+        <p class="text-xs text-gray-400">${esc(o.position)}${o.committee ? ' · ' + esc(o.committee) : ''}</p>
+      </div>
+      <span class="text-sm font-semibold text-pink-600">${pct}%</span>
+    </div>`;
+  }).join('');
+}
 
-    const body = document.getElementById('officers-body');
-    const noEl = document.getElementById('no-officers');
-
-    if (!officers.length) { body.innerHTML = ''; noEl.classList.remove('hidden'); return; }
-    noEl.classList.add('hidden');
-
-    // Group by committee
-    const groups = groupByCommittee(officers);
-    body.innerHTML = groups.map(({ label, members }) => `
-      <div class="mb-6">
-        <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          ${members.map(o => `
-            <div class="bg-white rounded-xl p-3 shadow-sm text-center relative group">
-              <img src="${avatar(o)}" class="w-16 h-16 mx-auto rounded-full object-cover mb-2">
-              <p class="text-sm font-semibold text-gray-800 truncate">${esc(o.name)}</p>
-              <p class="text-xs text-gray-400">${esc(o.position)}</p>
-              <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                <button onclick="editOfficer('${o.id}')" class="text-gray-400 hover:text-pink-500">
-                  <i data-lucide="edit" class="w-3.5 h-3.5"></i>
-                </button>
-                <button onclick="deleteOfficer('${o.id}')" class="text-gray-400 hover:text-red-500">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
-              </div>
-            </div>`).join('')}
-        </div>
-      </div>`).join('');
-    lucide.createIcons();
-  }
-
-  // Group officers by committee; ungrouped go under "General"
-  function groupByCommittee(officers) {
-    const map = new Map();
-    for (const o of officers) {
-      const key = (o.committee || '').trim() || 'General';
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(o);
-    }
-    // Sort: named committees alphabetically, "General" last
-    const keys = [...map.keys()].sort((a, b) => {
-      if (a === 'General') return 1;
-      if (b === 'General') return -1;
-      return a.localeCompare(b);
-    });
-    return keys.map(k => ({ label: k, members: map.get(k) }));
-  }
-
-  // Photo handling
-  function handlePhotoFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      pendingPhotoB64 = ev.target.result;   // data:image/...;base64,...
-      document.getElementById('of-photo-preview').src = pendingPhotoB64;
-      document.getElementById('of-photo-preview').classList.remove('hidden');
-      document.getElementById('of-photo-btn').classList.add('hidden');
-    };
-    reader.readAsDataURL(file);
-    // reset so same file can be re-selected
-    e.target.value = '';
-  }
-
-  function clearPhoto() {
-    pendingPhotoB64 = null;
-    document.getElementById('of-photo-preview').src = '';
-    document.getElementById('of-photo-preview').classList.add('hidden');
-    document.getElementById('of-photo-btn').classList.remove('hidden');
-  }
-
-  function refreshCommitteeList() {
-    const dl = document.getElementById('committee-list');
-    dl.innerHTML = getCommittees().map(c => `<option value="${esc(c)}">`).join('');
-  }
-
-  function showOfficerForm(id) {
-    editingOfficerId = id || null;
-    pendingPhotoB64  = null;
-    document.getElementById('officer-form-container').classList.remove('hidden');
-    document.getElementById('officer-form-title').textContent = id ? 'Edit Officer' : 'Add Officer';
-    refreshCommitteeList();
-
-    const o = id ? allData.find(d => d.id === id) : null;
-    document.getElementById('of-name').value      = o ? o.name      : '';
-    document.getElementById('of-position').value  = o ? o.position  : '';
-    document.getElementById('of-committee').value = o ? (o.committee || '') : '';
-
-    const preview = document.getElementById('of-photo-preview');
-    const btn     = document.getElementById('of-photo-btn');
-    if (o && o.photo) {
-      preview.src = o.photo;
-      preview.classList.remove('hidden');
-      btn.classList.add('hidden');
-      pendingPhotoB64 = o.photo;   // keep existing photo unless replaced
-    } else {
-      preview.classList.add('hidden');
-      btn.classList.remove('hidden');
-    }
-    lucide.createIcons();
-  }
-
-  function hideOfficerForm() {
-    document.getElementById('officer-form-container').classList.add('hidden');
-    editingOfficerId = null;
-    pendingPhotoB64  = null;
-  }
-
-  function saveOfficer() {
-    const name      = document.getElementById('of-name').value.trim();
-    const position  = document.getElementById('of-position').value.trim();
-    const committee = document.getElementById('of-committee').value.trim();
-    const photo     = pendingPhotoB64 || '';
-
-    if (!name || !position) { alert('Name and position are required.'); return; }
-
-    if (editingOfficerId) {
-      const idx = allData.findIndex(d => d.id === editingOfficerId);
-      if (idx !== -1) Object.assign(allData[idx], { name, position, committee, photo });
-    } else {
-      allData.push({ type:'officer', id: genId(), name, position, committee, photo });
-    }
-    saveData(allData);
-    hideOfficerForm();
-    renderAll();
-  }
-
-  function editOfficer(id)   { showOfficerForm(id); }
-  function deleteOfficer(id) {
-    showConfirm('Delete this officer?', () => {
-      allData = allData.filter(d => !(d.type === 'attendance' && d.officer_id === id));
-      allData = allData.filter(d => d.id !== id);
-      saveData(allData);
-      renderAll();
-    });
-  }
-
-  // ── Meetings ─────────────────────────────────────────────────────────────────
-  function toggleMeetingSort() {
-    meetingSortDesc = !meetingSortDesc;
-    document.getElementById('sort-label').textContent = meetingSortDesc ? 'Newest First' : 'Oldest First';
-    renderMeetings();
-  }
-
-  function renderMeetings() {
-    let meetings = getMeetings().slice().sort((a, b) => {
-      const cmp = a.meeting_date.localeCompare(b.meeting_date);
-      return meetingSortDesc ? -cmp : cmp;
-    });
-    const list = document.getElementById('meetings-list');
-    const noEl = document.getElementById('no-meetings');
-    if (!meetings.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
-    noEl.style.display = 'none';
-    list.innerHTML = meetings.map(m => `
-      <div class="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:ring-2 hover:ring-pink-200 transition relative group"
-           onclick="openAttendance('${m.id}')">
-        <p class="font-semibold text-gray-800 text-sm">${esc(m.meeting_title)}</p>
-        <p class="text-xs text-gray-400">${m.meeting_date}${m.meeting_description ? ' · ' + esc(m.meeting_description) : ''}</p>
-        <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition" onclick="event.stopPropagation()">
-          <button onclick="editMeeting('${m.id}')" class="text-gray-400 hover:text-pink-500">
-            <i data-lucide="edit" class="w-3.5 h-3.5"></i>
-          </button>
-          <button onclick="deleteMeeting('${m.id}')" class="text-gray-400 hover:text-red-500">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
-      </div>`).join('');
-    lucide.createIcons();
-  }
-
-  function showMeetingForm(id) {
-    editingMeetingId = id || null;
-    document.getElementById('meeting-form-container').classList.remove('hidden');
-    document.getElementById('meeting-form-title').textContent = id ? 'Edit Meeting' : 'Create Meeting';
-    const m = id ? allData.find(d => d.id === id) : null;
-    document.getElementById('mf-title').value = m ? m.meeting_title        : '';
-    document.getElementById('mf-date').value  = m ? m.meeting_date         : '';
-    document.getElementById('mf-desc').value  = m ? (m.meeting_description || '') : '';
-  }
-
-  function hideMeetingForm() {
-    document.getElementById('meeting-form-container').classList.add('hidden');
-    editingMeetingId = null;
-  }
-
-  function saveMeeting() {
-    const meeting_title       = document.getElementById('mf-title').value.trim();
-    const meeting_date        = document.getElementById('mf-date').value;
-    const meeting_description = document.getElementById('mf-desc').value.trim();
-    if (!meeting_title || !meeting_date) { alert('Title and date are required.'); return; }
-    if (editingMeetingId) {
-      const idx = allData.findIndex(d => d.id === editingMeetingId);
-      if (idx !== -1) Object.assign(allData[idx], { meeting_title, meeting_date, meeting_description });
-    } else {
-      allData.push({ type:'meeting', id: genId(), meeting_title, meeting_date, meeting_description });
-    }
-    saveData(allData); hideMeetingForm(); renderAll();
-  }
-
-  function editMeeting(id)   { showMeetingForm(id); }
-  function deleteMeeting(id) {
-    showConfirm('Delete this meeting and its attendance records?', () => {
-      const m = allData.find(d => d.id === id);
-      if (m) allData = allData.filter(d =>
-        !(d.type === 'attendance' && d.meeting_title === m.meeting_title && d.meeting_date === m.meeting_date));
-      allData = allData.filter(d => d.id !== id);
-      saveData(allData); renderAll();
-    });
-  }
-
-  // ── Attendance ───────────────────────────────────────────────────────────────
-  function openAttendance(meetingId) {
-    currentMeeting = allData.find(d => d.id === meetingId);
-    document.getElementById('meetings-list').style.display          = 'none';
-    document.getElementById('no-meetings').style.display            = 'none';
-    document.getElementById('meeting-form-container').classList.add('hidden');
-    document.getElementById('meetings-toolbar').style.display       = 'none';
-    document.getElementById('attendance-view').classList.remove('hidden');
-    document.getElementById('attendance-title').textContent = currentMeeting.meeting_title;
-    document.getElementById('att-search').value = '';
-    renderAttendance();
-  }
-
-  function closeAttendance() {
-    if (!currentMeeting) return;
-    currentMeeting = null;
-    document.getElementById('attendance-view').classList.add('hidden');
-    document.getElementById('meetings-list').style.display    = '';
-    document.getElementById('meetings-toolbar').style.display = '';
-    renderMeetings();
-  }
-
-  function renderAttendance() {
-    if (!currentMeeting) return;
-    const q        = (document.getElementById('att-search')?.value || '').toLowerCase();
-    const officers = getOfficers().filter(o =>
-      o.name.toLowerCase().includes(q) ||
-      (o.committee || '').toLowerCase().includes(q) ||
-      (o.position  || '').toLowerCase().includes(q)
-    );
-    const records  = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
-
-    // Counts are always over ALL officers (not filtered)
-    const allOfficers = getOfficers();
-    const present = records.filter(r => r.status === 'present').length;
-    const absent  = records.filter(r => r.status === 'absent').length;
-    document.getElementById('att-present').textContent = present;
-    document.getElementById('att-absent').textContent  = absent;
-    document.getElementById('att-none').textContent    = allOfficers.length - present - absent;
-
-    const groups = groupByCommittee(officers);
-    document.getElementById('attendance-body').innerHTML = groups.map(({ label, members }) => `
-      <div class="mb-6">
-        <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          ${members.map(o => {
-            const rec    = records.find(r => r.officer_id === o.id);
-            const status = rec ? rec.status : 'none';
-            const ring   = status === 'present' ? 'ring-4 ring-green-400'
-                         : status === 'absent'  ? 'ring-4 ring-red-300' : '';
-            const dim    = status === 'none' ? 'opacity-50' : '';
-            const label2 = status === 'present' ? 'Present'
-                         : status === 'absent'  ? 'Absent' : 'Not in meeting';
-            const color  = status === 'present' ? 'text-green-600'
-                         : status === 'absent'  ? 'text-red-500' : 'text-gray-400';
-            const hint   = status === 'none'    ? 'Click to mark Present'
-                         : status === 'present' ? 'Click to mark Absent'
-                         : 'Click to remove from meeting';
-            return `<div class="bg-white rounded-xl p-3 shadow-sm text-center ${ring} ${dim} transition cursor-pointer"
-                         onclick="toggleAttendance('${o.id}')" title="${hint}">
-              <img src="${avatar(o)}" class="w-14 h-14 mx-auto rounded-full object-cover mb-2">
-              <p class="text-xs font-semibold text-gray-800 truncate">${esc(o.name)}</p>
-              <span class="text-[10px] font-medium ${color}">${label2}</span>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`).join('');
-  }
-
-  function toggleAttendance(officerId) {
-    if (!currentMeeting) return;
-    const records = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
-    const rec     = records.find(r => r.officer_id === officerId);
-    if (!rec) {
-      allData.push({ type:'attendance', id: genId(),
-        meeting_title: currentMeeting.meeting_title,
-        meeting_date:  currentMeeting.meeting_date,
-        officer_id: officerId, status: 'present' });
-    } else if (rec.status === 'present') {
-      allData.find(d => d.id === rec.id).status = 'absent';
-    } else {
-      allData = allData.filter(d => d.id !== rec.id);
-    }
-    saveData(allData);
-    renderAttendance();
-    renderDashboard();
-  }
-
-  // ── Confirm dialog ───────────────────────────────────────────────────────────
-  function showConfirm(msg, cb) {
-    document.getElementById('confirm-msg').textContent = msg;
-    document.getElementById('confirm-overlay').classList.remove('hidden');
-    confirmCallback = cb;
-  }
-  function confirmYes() { document.getElementById('confirm-overlay').classList.add('hidden'); if (confirmCallback) confirmCallback(); confirmCallback = null; }
-  function confirmNo()  { document.getElementById('confirm-overlay').classList.add('hidden'); confirmCallback = null; }
-
-  // ── Utilities ────────────────────────────────────────────────────────────────
-  function avatar(o) {
-    if (o.photo) return o.photo;
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(o.name)}&background=fce7f3&color=db2777&size=128`;
-  }
-  function esc(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-  function renderAll() {
-    renderDashboard(); renderOfficers(); renderMeetings();
-    if (currentMeeting) renderAttendance();
-  }
-
-  // ── Init ─────────────────────────────────────────────────────────────────────
-  renderAll();
+// ── Officers ─────────────────────────────────────────────────────────────────
+function renderOfficers() {
+  const q = (document.getElementById('officer-search')?.value || '').toLowerCase();
+  let officers = getOfficers().filter(o =>
+    o.name.toLowerCase().includes(q) ||
+    (o.committee || '').toLowerCase().includes(q) ||
+    (o.position  || '').toLowerCase().includes(q)
+  );
+  const body = document.getElementById('officers-body');
+  const noEl = document.getElementById('no-officers');
+  if (!officers.length) { body.innerHTML = ''; noEl.classList.remove('hidden'); return; }
+  noEl.classList.add('hidden');
+  const groups = groupByCommittee(officers);
+  body.innerHTML = groups.map(({ label, members }) => `
+    <div class="mb-6">
+      <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        ${members.map(o => `
+          <div class="bg-white rounded-xl p-3 shadow-sm text-center relative group">
+            <img src="${avatar(o)}" class="w-16 h-16 mx-auto rounded-full object-cover mb-2">
+            <p class="text-sm font-semibold text-gray-800 truncate">${esc(o.name)}</p>
+            <p class="text-xs text-gray-400">${esc(o.position)}</p>
+            <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+              <button onclick="editOfficer('${o.id}')" class="text-gray-400 hover:text-pink-500">
+                <i data-lucide="edit" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="deleteOfficer('${o.id}')" class="text-gray-400 hover:text-red-500">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
   lucide.createIcons();
-  </script>
+}
+
+function groupByCommittee(officers) {
+  const map = new Map();
+  for (const o of officers) {
+    const key = (o.committee || '').trim() || 'General';
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(o);
+  }
+  const keys = [...map.keys()].sort((a, b) => {
+    if (a === 'General') return 1;
+    if (b === 'General') return -1;
+    return a.localeCompare(b);
+  });
+  return keys.map(k => ({ label: k, members: map.get(k) }));
+}
+
+// ── Photo handling ────────────────────────────────────────────────────────────
+function handlePhotoFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingPhotoB64 = ev.target.result;
+    document.getElementById('of-photo-preview').src = pendingPhotoB64;
+    document.getElementById('of-photo-preview').classList.remove('hidden');
+    document.getElementById('of-photo-btn').classList.add('hidden');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function clearPhoto() {
+  pendingPhotoB64 = null;
+  document.getElementById('of-photo-preview').src = '';
+  document.getElementById('of-photo-preview').classList.add('hidden');
+  document.getElementById('of-photo-btn').classList.remove('hidden');
+}
+
+function refreshCommitteeList() {
+  const dl = document.getElementById('committee-list');
+  dl.innerHTML = getCommittees().map(c => `<option value="${esc(c)}">`).join('');
+}
+
+function showOfficerForm(id) {
+  editingOfficerId = id || null;
+  pendingPhotoB64  = null;
+  document.getElementById('officer-form-container').classList.remove('hidden');
+  document.getElementById('officer-form-title').textContent = id ? 'Edit Officer' : 'Add Officer';
+  refreshCommitteeList();
+  const o = id ? allData.find(d => d.id === id) : null;
+  document.getElementById('of-name').value      = o ? o.name      : '';
+  document.getElementById('of-position').value  = o ? o.position  : '';
+  document.getElementById('of-committee').value = o ? (o.committee || '') : '';
+  const preview = document.getElementById('of-photo-preview');
+  const btn     = document.getElementById('of-photo-btn');
+  if (o && o.photo) {
+    preview.src = o.photo; preview.classList.remove('hidden');
+    btn.classList.add('hidden'); pendingPhotoB64 = o.photo;
+  } else {
+    preview.classList.add('hidden'); btn.classList.remove('hidden');
+  }
+  lucide.createIcons();
+}
+
+function hideOfficerForm() {
+  document.getElementById('officer-form-container').classList.add('hidden');
+  editingOfficerId = null; pendingPhotoB64 = null;
+}
+
+async function saveOfficer() {
+  const name      = document.getElementById('of-name').value.trim();
+  const position  = document.getElementById('of-position').value.trim();
+  const committee = document.getElementById('of-committee').value.trim();
+  const photo     = pendingPhotoB64 || '';
+  if (!name || !position) { alert('Name and position are required.'); return; }
+
+  if (editingOfficerId) {
+    const idx = allData.findIndex(d => d.id === editingOfficerId);
+    if (idx !== -1) {
+      Object.assign(allData[idx], { name, position, committee, photo });
+      await persistSave(allData[idx]);
+    }
+  } else {
+    const item = { type:'officer', id: genId(), name, position, committee, photo };
+    allData.push(item);
+    await persistSave(item);
+  }
+  hideOfficerForm();
+  renderAll();
+}
+
+function editOfficer(id) { showOfficerForm(id); }
+
+function deleteOfficer(id) {
+  showConfirm('Delete this officer?', async () => {
+    // Delete attendance records for this officer
+    const toDelete = allData.filter(d => d.type === 'attendance' && d.officer_id === id);
+    for (const d of toDelete) await persistDelete(d.id);
+    await persistDelete(id);
+    allData = allData.filter(d => !(d.type === 'attendance' && d.officer_id === id));
+    allData = allData.filter(d => d.id !== id);
+    renderAll();
+  });
+}
+
+// ── Meetings ──────────────────────────────────────────────────────────────────
+function toggleMeetingSort() {
+  meetingSortDesc = !meetingSortDesc;
+  document.getElementById('sort-label').textContent = meetingSortDesc ? 'Newest First' : 'Oldest First';
+  renderMeetings();
+}
+
+function renderMeetings() {
+  let meetings = getMeetings().slice().sort((a, b) => {
+    const cmp = a.meeting_date.localeCompare(b.meeting_date);
+    return meetingSortDesc ? -cmp : cmp;
+  });
+  const list = document.getElementById('meetings-list');
+  const noEl = document.getElementById('no-meetings');
+  if (!meetings.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
+  noEl.style.display = 'none';
+  list.innerHTML = meetings.map(m => `
+    <div class="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:ring-2 hover:ring-pink-200 transition relative group"
+         onclick="openAttendance('${m.id}')">
+      <p class="font-semibold text-gray-800 text-sm">${esc(m.meeting_title)}</p>
+      <p class="text-xs text-gray-400">${m.meeting_date}${m.meeting_description ? ' · ' + esc(m.meeting_description) : ''}</p>
+      <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition" onclick="event.stopPropagation()">
+        <button onclick="editMeeting('${m.id}')" class="text-gray-400 hover:text-pink-500">
+          <i data-lucide="edit" class="w-3.5 h-3.5"></i>
+        </button>
+        <button onclick="deleteMeeting('${m.id}')" class="text-gray-400 hover:text-red-500">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>`).join('');
+  lucide.createIcons();
+}
+
+function showMeetingForm(id) {
+  editingMeetingId = id || null;
+  document.getElementById('meeting-form-container').classList.remove('hidden');
+  document.getElementById('meeting-form-title').textContent = id ? 'Edit Meeting' : 'Create Meeting';
+  const m = id ? allData.find(d => d.id === id) : null;
+  document.getElementById('mf-title').value = m ? m.meeting_title        : '';
+  document.getElementById('mf-date').value  = m ? m.meeting_date         : '';
+  document.getElementById('mf-desc').value  = m ? (m.meeting_description || '') : '';
+}
+
+function hideMeetingForm() {
+  document.getElementById('meeting-form-container').classList.add('hidden');
+  editingMeetingId = null;
+}
+
+async function saveMeeting() {
+  const meeting_title       = document.getElementById('mf-title').value.trim();
+  const meeting_date        = document.getElementById('mf-date').value;
+  const meeting_description = document.getElementById('mf-desc').value.trim();
+  if (!meeting_title || !meeting_date) { alert('Title and date are required.'); return; }
+
+  if (editingMeetingId) {
+    const idx = allData.findIndex(d => d.id === editingMeetingId);
+    if (idx !== -1) {
+      Object.assign(allData[idx], { meeting_title, meeting_date, meeting_description });
+      await persistSave(allData[idx]);
+    }
+  } else {
+    const item = { type:'meeting', id: genId(), meeting_title, meeting_date, meeting_description };
+    allData.push(item);
+    await persistSave(item);
+  }
+  hideMeetingForm();
+  renderAll();
+}
+
+function editMeeting(id) { showMeetingForm(id); }
+
+function deleteMeeting(id) {
+  showConfirm('Delete this meeting and its attendance records?', async () => {
+    const m = allData.find(d => d.id === id);
+    if (m) {
+      const toDelete = allData.filter(d =>
+        d.type === 'attendance' && d.meeting_title === m.meeting_title && d.meeting_date === m.meeting_date);
+      for (const d of toDelete) await persistDelete(d.id);
+      allData = allData.filter(d =>
+        !(d.type === 'attendance' && d.meeting_title === m.meeting_title && d.meeting_date === m.meeting_date));
+    }
+    await persistDelete(id);
+    allData = allData.filter(d => d.id !== id);
+    renderAll();
+  });
+}
+
+// ── Attendance ────────────────────────────────────────────────────────────────
+function openAttendance(meetingId) {
+  currentMeeting = allData.find(d => d.id === meetingId);
+  document.getElementById('meetings-list').style.display          = 'none';
+  document.getElementById('no-meetings').style.display            = 'none';
+  document.getElementById('meeting-form-container').classList.add('hidden');
+  document.getElementById('meetings-toolbar').style.display       = 'none';
+  document.getElementById('attendance-view').classList.remove('hidden');
+  document.getElementById('attendance-title').textContent = currentMeeting.meeting_title;
+  document.getElementById('att-search').value = '';
+  renderAttendance();
+}
+
+function closeAttendance() {
+  if (!currentMeeting) return;
+  currentMeeting = null;
+  document.getElementById('attendance-view').classList.add('hidden');
+  document.getElementById('meetings-list').style.display    = '';
+  document.getElementById('meetings-toolbar').style.display = '';
+  renderMeetings();
+}
+
+function renderAttendance() {
+  if (!currentMeeting) return;
+  const q        = (document.getElementById('att-search')?.value || '').toLowerCase();
+  const officers = getOfficers().filter(o =>
+    o.name.toLowerCase().includes(q) ||
+    (o.committee || '').toLowerCase().includes(q) ||
+    (o.position  || '').toLowerCase().includes(q)
+  );
+  const records     = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
+  const allOfficers = getOfficers();
+  const present = records.filter(r => r.status === 'present').length;
+  const absent  = records.filter(r => r.status === 'absent').length;
+  document.getElementById('att-present').textContent = present;
+  document.getElementById('att-absent').textContent  = absent;
+  document.getElementById('att-none').textContent    = allOfficers.length - present - absent;
+
+  const groups = groupByCommittee(officers);
+  document.getElementById('attendance-body').innerHTML = groups.map(({ label, members }) => `
+    <div class="mb-6">
+      <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        ${members.map(o => {
+          const rec    = records.find(r => r.officer_id === o.id);
+          const status = rec ? rec.status : 'none';
+          const ring   = status === 'present' ? 'ring-4 ring-green-400'
+                       : status === 'absent'  ? 'ring-4 ring-red-300' : '';
+          const dim    = status === 'none' ? 'opacity-50' : '';
+          const label2 = status === 'present' ? 'Present'
+                       : status === 'absent'  ? 'Absent' : 'Not in meeting';
+          const color  = status === 'present' ? 'text-green-600'
+                       : status === 'absent'  ? 'text-red-500' : 'text-gray-400';
+          const hint   = status === 'none'    ? 'Click to mark Present'
+                       : status === 'present' ? 'Click to mark Absent'
+                       : 'Click to remove from meeting';
+          return `<div class="bg-white rounded-xl p-3 shadow-sm text-center ${ring} ${dim} transition cursor-pointer"
+                       onclick="toggleAttendance('${o.id}')" title="${hint}">
+            <img src="${avatar(o)}" class="w-14 h-14 mx-auto rounded-full object-cover mb-2">
+            <p class="text-xs font-semibold text-gray-800 truncate">${esc(o.name)}</p>
+            <span class="text-[10px] font-medium ${color}">${label2}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+async function toggleAttendance(officerId) {
+  if (!currentMeeting) return;
+  const records = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
+  const rec     = records.find(r => r.officer_id === officerId);
+
+  if (!rec) {
+    const item = { type:'attendance', id: genId(),
+      meeting_title: currentMeeting.meeting_title,
+      meeting_date:  currentMeeting.meeting_date,
+      officer_id: officerId, status: 'present' };
+    allData.push(item);
+    await persistSave(item);
+  } else if (rec.status === 'present') {
+    allData.find(d => d.id === rec.id).status = 'absent';
+    await persistSave(allData.find(d => d.id === rec.id));
+  } else {
+    await persistDelete(rec.id);
+    allData = allData.filter(d => d.id !== rec.id);
+  }
+  renderAttendance();
+  renderDashboard();
+}
+
+// ── Confirm dialog ────────────────────────────────────────────────────────────
+function showConfirm(msg, cb) {
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-overlay').classList.remove('hidden');
+  confirmCallback = cb;
+}
+function confirmYes() {
+  document.getElementById('confirm-overlay').classList.add('hidden');
+  if (confirmCallback) confirmCallback();
+  confirmCallback = null;
+}
+function confirmNo() {
+  document.getElementById('confirm-overlay').classList.add('hidden');
+  confirmCallback = null;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function avatar(o) {
+  if (o.photo) return o.photo;
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(o.name)}&background=fce7f3&color=db2777&size=128`;
+}
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function renderAll() {
+  renderDashboard(); renderOfficers(); renderMeetings();
+  if (currentMeeting) renderAttendance();
+}
+
+// Don't call renderAll() here — register.js calls it after data loads
+lucide.createIcons();
+</script>
   </div>
 </body>
 </html>
