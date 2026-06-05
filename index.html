@@ -1,46 +1,145 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attendify</title>
+
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- FIREBASE -->
+  <script type="module" src="register.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            pink: { 50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d' }
+            pink: {
+              50:'#fdf2f8',
+              100:'#fce7f3',
+              200:'#fbcfe8',
+              300:'#f9a8d4',
+              400:'#f472b6',
+              500:'#ec4899',
+              600:'#db2777',
+              700:'#be185d'
+            }
           }
         }
       }
     }
   </script>
+
   <style>
     body { font-family: 'DM Sans', sans-serif; }
     .tab-active { border-bottom: 3px solid #ec4899; color: #ec4899; font-weight: 600; }
     .view { display: none; }
     .view.active { display: block; }
-    .photo-preview { width:72px; height:72px; border-radius:50%; object-fit:cover; border:2px solid #fbcfe8; }
-    .photo-btn { cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      width:72px; height:72px; border-radius:50%; border:2px dashed #f9a8d4; background:#fdf2f8;
-      color:#db2777; font-size:11px; gap:2px; transition:background .15s; }
-    .photo-btn:hover { background:#fce7f3; }
+    .photo-preview {
+      width:72px;
+      height:72px;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid #fbcfe8;
+    }
+
+    .photo-btn {
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:72px;
+      height:72px;
+      border-radius:50%;
+      border:2px dashed #f9a8d4;
+      background:#fdf2f8;
+      color:#db2777;
+      font-size:11px;
+      gap:2px;
+      transition:background .15s;
+    }
+
+    .photo-btn:hover {
+      background:#fce7f3;
+    }
   </style>
 </head>
+
 <body class="min-h-screen bg-pink-50">
 
-  <header class="bg-white shadow-sm sticky top-0 z-50">
-    <div class="max-w-4xl mx-auto px-4 py-3">
-      <h1 class="text-xl font-bold text-pink-600 text-center">Attendify</h1>
+  <!-- LOGIN SCREEN -->
+  <div id="auth-screen" class="fixed inset-0 bg-pink-50 flex items-center justify-center z-[9999] px-4">
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+
+      <h1 class="text-3xl font-bold text-center text-pink-600 mb-6">
+        Attendify
+      </h1>
+
+      <input
+        type="email"
+        id="email"
+        placeholder="Email"
+        class="w-full px-4 py-3 border rounded-lg mb-3"
+      >
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        class="w-full px-4 py-3 border rounded-lg mb-4"
+      >
+
+      <button
+        id="signupBtn"
+        class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg mb-2"
+      >
+        Sign Up
+      </button>
+
+      <button
+        id="loginBtn"
+        class="w-full bg-gray-800 hover:bg-black text-white py-3 rounded-lg"
+      >
+        Login
+      </button>
+
     </div>
+
+  </div>
+
+  <!-- APP CONTENT -->
+  <div id="app-content" style="display:none;">
+
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+
+      <h1 class="text-xl font-bold text-pink-600">
+        Attendify
+      </h1>
+
+      <button
+        onclick="logoutUser()"
+        class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs"
+      >
+        Logout
+      </button>
+
+    </div>
+
     <nav class="max-w-4xl mx-auto flex border-t">
       <button onclick="switchTab('dashboard')" id="tab-dashboard" class="flex-1 py-3 text-sm text-center tab-active">Dashboard</button>
-      <button onclick="switchTab('officers')"  id="tab-officers"  class="flex-1 py-3 text-sm text-center text-gray-500">Officers</button>
-      <button onclick="switchTab('meetings')"  id="tab-meetings"  class="flex-1 py-3 text-sm text-center text-gray-500">Meetings</button>
+      <button onclick="switchTab('officers')" id="tab-officers" class="flex-1 py-3 text-sm text-center text-gray-500">Officers</button>
+      <button onclick="switchTab('meetings')" id="tab-meetings" class="flex-1 py-3 text-sm text-center text-gray-500">Meetings</button>
     </nav>
+
   </header>
 
   <!-- hidden file input for photo uploads -->
@@ -583,5 +682,6 @@
   renderAll();
   lucide.createIcons();
   </script>
+  </div>
 </body>
 </html>
