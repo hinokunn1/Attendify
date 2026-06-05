@@ -7,7 +7,6 @@
 
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- FIREBASE -->
@@ -19,14 +18,9 @@
         extend: {
           colors: {
             pink: {
-              50:'#fdf2f8',
-              100:'#fce7f3',
-              200:'#fbcfe8',
-              300:'#f9a8d4',
-              400:'#f472b6',
-              500:'#ec4899',
-              600:'#db2777',
-              700:'#be185d'
+              50:'#fdf2f8', 100:'#fce7f3', 200:'#fbcfe8',
+              300:'#f9a8d4', 400:'#f472b6', 500:'#ec4899',
+              600:'#db2777', 700:'#be185d'
             }
           }
         }
@@ -39,44 +33,28 @@
     .tab-active { border-bottom: 3px solid #ec4899; color: #ec4899; font-weight: 600; }
     .view { display: none; }
     .view.active { display: block; }
-    .photo-preview {
-      width:72px;
-      height:72px;
-      border-radius:50%;
-      object-fit:cover;
-      border:2px solid #fbcfe8;
-    }
+    .photo-preview { width:72px; height:72px; border-radius:50%; object-fit:cover; border:2px solid #fbcfe8; }
     .photo-btn {
-      cursor:pointer;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      width:72px;
-      height:72px;
-      border-radius:50%;
-      border:2px dashed #f9a8d4;
-      background:#fdf2f8;
-      color:#db2777;
-      font-size:11px;
-      gap:2px;
-      transition:background .15s;
+      cursor:pointer; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; width:72px; height:72px; border-radius:50%;
+      border:2px dashed #f9a8d4; background:#fdf2f8; color:#db2777;
+      font-size:11px; gap:2px; transition:background .15s;
     }
     .photo-btn:hover { background:#fce7f3; }
 
-    /* Rank badge styles */
-    .rank-1 { background: linear-gradient(135deg, #fef08a, #facc15); color: #713f12; }
-    .rank-2 { background: linear-gradient(135deg, #e2e8f0, #cbd5e1); color: #334155; }
-    .rank-3 { background: linear-gradient(135deg, #fed7aa, #fb923c); color: #7c2d12; }
-    .rank-other { background: #f3f4f6; color: #6b7280; }
+    /* Rank badges */
+    .rank-1     { background: linear-gradient(135deg,#fef08a,#facc15); color:#713f12; }
+    .rank-2     { background: linear-gradient(135deg,#e2e8f0,#cbd5e1); color:#334155; }
+    .rank-3     { background: linear-gradient(135deg,#fed7aa,#fb923c); color:#7c2d12; }
+    .rank-other { background:#f3f4f6; color:#6b7280; }
 
-    .score-bar-fill { transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+    .bar-fill { transition: width 0.6s cubic-bezier(.4,0,.2,1); }
 
-    .unranked-section {
-      border-top: 2px dashed #fbcfe8;
-      padding-top: 12px;
-      margin-top: 8px;
-    }
+    .unranked-section { border-top:2px dashed #fbcfe8; padding-top:12px; margin-top:8px; }
+
+    /* Info modal animation */
+    #ranking-modal { transition: opacity .2s; }
+    #ranking-modal.hidden { opacity:0; pointer-events:none; }
   </style>
 </head>
 
@@ -86,10 +64,10 @@
   <div id="auth-screen" class="fixed inset-0 bg-pink-50 flex items-center justify-center z-[9999] px-4">
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
       <h1 class="text-3xl font-bold text-center text-pink-600 mb-6">Attendify</h1>
-      <input type="email" id="email" placeholder="Email" class="w-full px-4 py-3 border rounded-lg mb-3">
-      <input type="password" id="password" placeholder="Password" class="w-full px-4 py-3 border rounded-lg mb-4">
+      <input type="email"     id="email"    placeholder="Email"    class="w-full px-4 py-3 border rounded-lg mb-3">
+      <input type="password"  id="password" placeholder="Password" class="w-full px-4 py-3 border rounded-lg mb-4">
       <button id="signupBtn" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg mb-2">Sign Up</button>
-      <button id="loginBtn" class="w-full bg-gray-800 hover:bg-black text-white py-3 rounded-lg">Login</button>
+      <button id="loginBtn"  class="w-full bg-gray-800 hover:bg-black  text-white py-3 rounded-lg">Login</button>
     </div>
   </div>
 
@@ -103,18 +81,20 @@
       </div>
       <nav class="max-w-4xl mx-auto flex border-t">
         <button onclick="switchTab('dashboard')" id="tab-dashboard" class="flex-1 py-3 text-sm text-center tab-active">Dashboard</button>
-        <button onclick="switchTab('officers')" id="tab-officers" class="flex-1 py-3 text-sm text-center text-gray-500">Officers</button>
-        <button onclick="switchTab('meetings')" id="tab-meetings" class="flex-1 py-3 text-sm text-center text-gray-500">Meetings</button>
+        <button onclick="switchTab('officers')"  id="tab-officers"  class="flex-1 py-3 text-sm text-center text-gray-500">Officers</button>
+        <button onclick="switchTab('meetings')"  id="tab-meetings"  class="flex-1 py-3 text-sm text-center text-gray-500">Meetings</button>
       </nav>
     </header>
 
-    <!-- hidden file input for photo uploads -->
+    <!-- hidden file input -->
     <input type="file" id="photo-file-input" accept="image/*" class="hidden" onchange="handlePhotoFile(event)">
 
     <main class="max-w-4xl mx-auto px-4 py-6">
 
       <!-- ── Dashboard ── -->
       <div id="view-dashboard" class="view active">
+
+        <!-- Stats row -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           <div class="bg-white rounded-xl p-4 shadow-sm text-center">
             <p class="text-2xl font-bold text-pink-600" id="stat-total-officers">0</p>
@@ -130,13 +110,14 @@
           </div>
         </div>
 
+        <!-- Rankings header -->
         <div class="flex items-center justify-between mb-3">
           <h2 class="font-semibold text-gray-800">Officer Rankings</h2>
-          <div class="flex items-center gap-2 text-[10px] bg-white rounded-lg px-2 py-1 shadow-sm">
-            <span class="font-bold text-green-600">●</span><span class="text-gray-400">≥80%</span>
-            <span class="font-bold text-amber-500 ml-1">●</span><span class="text-gray-400">≥50%</span>
-            <span class="font-bold text-red-500 ml-1">●</span><span class="text-gray-400">&lt;50%</span>
-          </div>
+          <button onclick="openRankingInfo()"
+            class="flex items-center gap-1.5 text-xs text-pink-500 bg-white border border-pink-200 rounded-lg px-2.5 py-1.5 shadow-sm hover:bg-pink-50 transition">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+            How rankings work
+          </button>
         </div>
 
         <div id="officer-summary-list" class="space-y-2"></div>
@@ -155,7 +136,6 @@
           </button>
         </div>
 
-        <!-- Officer form -->
         <div id="officer-form-container" class="hidden bg-white rounded-xl p-4 shadow-sm mb-4">
           <h3 class="font-semibold text-gray-700 mb-3" id="officer-form-title">Add Officer</h3>
           <div class="space-y-3">
@@ -172,8 +152,8 @@
                 <button type="button" onclick="clearPhoto()" class="text-pink-400 underline mt-1">Remove photo</button>
               </div>
             </div>
-            <input id="of-name"     type="text" placeholder="Full Name" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <input id="of-position" type="text" placeholder="Position"  class="w-full px-3 py-2 border rounded-lg text-sm">
+            <input id="of-name"      type="text" placeholder="Full Name" class="w-full px-3 py-2 border rounded-lg text-sm">
+            <input id="of-position"  type="text" placeholder="Position"  class="w-full px-3 py-2 border rounded-lg text-sm">
             <div>
               <input id="of-committee" type="text" placeholder="Committee (e.g. Academic, Finance…)"
                 list="committee-list" autocomplete="off"
@@ -181,7 +161,7 @@
               <datalist id="committee-list"></datalist>
             </div>
             <div class="flex gap-2">
-              <button onclick="saveOfficer()" class="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Save</button>
+              <button onclick="saveOfficer()"    class="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Save</button>
               <button onclick="hideOfficerForm()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm">Cancel</button>
             </div>
           </div>
@@ -209,10 +189,10 @@
           <h3 class="font-semibold text-gray-700 mb-3" id="meeting-form-title">Create Meeting</h3>
           <div class="space-y-3">
             <input id="mf-title" type="text" placeholder="Meeting Title" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <input id="mf-date"  type="date" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <textarea id="mf-desc" placeholder="Description (optional)" class="w-full px-3 py-2 border rounded-lg text-sm" rows="2"></textarea>
+            <input id="mf-date"  type="date"                             class="w-full px-3 py-2 border rounded-lg text-sm">
+            <textarea id="mf-desc" placeholder="Description (optional)"  class="w-full px-3 py-2 border rounded-lg text-sm" rows="2"></textarea>
             <div class="flex gap-2">
-              <button onclick="saveMeeting()" class="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Save</button>
+              <button onclick="saveMeeting()"    class="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Save</button>
               <button onclick="hideMeetingForm()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm">Cancel</button>
             </div>
           </div>
@@ -243,7 +223,7 @@
 
     </main>
 
-    <!-- Delete confirmation overlay -->
+    <!-- ── Delete confirmation overlay ── -->
     <div id="confirm-overlay" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-xl p-5 max-w-sm w-full shadow-xl">
         <p id="confirm-msg" class="text-gray-700 text-sm mb-4">Are you sure?</p>
@@ -254,7 +234,80 @@
       </div>
     </div>
 
-  </div> <!-- end app-content -->
+    <!-- ── Ranking info modal ── -->
+    <div id="ranking-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-xl">
+
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-gray-800 text-base">How Rankings Work</h3>
+          <button onclick="closeRankingInfo()" class="text-gray-400 hover:text-gray-600">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="mb-3">
+          <p class="text-xs font-bold text-gray-700 mb-1.5">① Only required meetings count</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-2">
+            Not every officer attends every meeting — and that's fine. An officer is only judged on meetings they were expected to attend.
+          </p>
+          <div class="rounded-xl overflow-hidden border border-gray-100 text-xs">
+            <div class="flex items-center gap-2 px-3 py-2 bg-green-50">
+              <span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center font-bold flex-shrink-0">✓</span>
+              <div><span class="font-semibold text-green-700">Present</span> <span class="text-gray-500">— showed up. Counts as attended.</span></div>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-2 bg-red-50">
+              <span class="w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center font-bold flex-shrink-0">✗</span>
+              <div><span class="font-semibold text-red-600">Absent</span> <span class="text-gray-500">— was required but didn't come. Still counts as required.</span></div>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-2 bg-gray-50">
+              <span class="w-5 h-5 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold flex-shrink-0">—</span>
+              <div><span class="font-semibold text-gray-500">Not in meeting</span> <span class="text-gray-400">— not their meeting. Completely ignored.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="mb-3">
+          <p class="text-xs font-bold text-gray-700 mb-1.5">② Attendance rate = attended ÷ required</p>
+          <div class="bg-pink-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
+            If an officer attended <strong>8 out of 10</strong> meetings they were required for, their rate is <strong class="text-pink-600">80%</strong>. The other meetings they weren't part of don't affect this.
+          </div>
+        </div>
+
+        <!-- Step 3: tiebreaker -->
+        <div class="mb-4">
+          <p class="text-xs font-bold text-gray-700 mb-1.5">③ Same rate? More meetings wins.</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-2">
+            Being perfect across 10 required meetings is a bigger deal than being perfect across 2. So if rates are tied, the officer with more required meetings ranks higher.
+          </p>
+          <div class="rounded-xl border border-gray-100 overflow-hidden text-[11px]">
+            <div class="flex items-center justify-between px-3 py-2 bg-white">
+              <div>
+                <span class="font-semibold text-gray-700">Ana</span>
+                <span class="text-gray-400 ml-1">2 attended · 2 required</span>
+              </div>
+              <span class="font-bold text-pink-400">100% · #2</span>
+            </div>
+            <div class="flex items-center justify-between px-3 py-2 bg-pink-50 border-t border-gray-100">
+              <div>
+                <span class="font-semibold text-gray-700">Ben</span>
+                <span class="text-gray-400 ml-1">10 attended · 10 required</span>
+              </div>
+              <span class="font-bold text-pink-600">100% · #1</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="closeRankingInfo()"
+          class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">
+          Got it
+        </button>
+
+      </div>
+    </div>
+
+  </div><!-- end app-content -->
 
   <script>
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -270,7 +323,7 @@ let confirmCallback  = null;
 let meetingSortDesc  = true;
 let pendingPhotoB64  = null;
 
-// ── Firestore save/delete wrappers ────────────────────────────────────────────
+// ── Firestore wrappers ────────────────────────────────────────────────────────
 async function persistSave(item) {
   if (window.currentUserId) await window.fsSaveItem(window.currentUserId, item);
 }
@@ -279,13 +332,13 @@ async function persistDelete(itemId) {
 }
 
 // ── Getters ───────────────────────────────────────────────────────────────────
-function getOfficers()  { return allData.filter(d => d.type === 'officer'); }
-function getMeetings()  { return allData.filter(d => d.type === 'meeting'); }
+function getOfficers() { return allData.filter(d => d.type === 'officer'); }
+function getMeetings() { return allData.filter(d => d.type === 'meeting'); }
 function getAttendance(title, date) {
   return allData.filter(d => d.type === 'attendance' && d.meeting_title === title && d.meeting_date === date);
 }
 function getCommittees() {
-  const s = new Set(getOfficers().map(o => (o.committee || '').trim()).filter(Boolean));
+  const s = new Set(getOfficers().map(o => (o.committee||'').trim()).filter(Boolean));
   return [...s].sort();
 }
 
@@ -299,37 +352,30 @@ function switchTab(tab) {
   if (tab === 'meetings') closeAttendance();
 }
 
+// ── Ranking modal ─────────────────────────────────────────────────────────────
+function openRankingInfo() {
+  document.getElementById('ranking-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+function closeRankingInfo() {
+  document.getElementById('ranking-modal').classList.add('hidden');
+}
+
 // ── Ranking logic ─────────────────────────────────────────────────────────────
-/**
- * Weighted score = (attendance_rate × 0.6) + (participation_depth × 0.4)
- *   attendance_rate    = present / marked_records  (how consistent when recorded)
- *   participation_depth = present / total_meetings  (how often they show up overall)
- *
- * Minimum threshold: max(3, floor(total_meetings * 0.20))
- * Officers below threshold → "Unranked"
- */
-function computeRankings(officers, allAttendance, totalMeetings) {
-  const threshold = Math.max(3, Math.floor(totalMeetings * 0.20));
-
-  const scored = officers.map(o => {
-    const records = allAttendance.filter(a => a.officer_id === o.id);
-    const present = records.filter(a => a.status === 'present').length;
-    const marked  = records.length; // present + absent
-
-    const attendanceRate     = marked  > 0 ? present / marked  : 0;
-    const participationDepth = totalMeetings > 0 ? present / totalMeetings : 0;
-    const weightedScore      = (attendanceRate * 0.6) + (participationDepth * 0.4);
-
-    return { o, present, marked, attendanceRate, participationDepth, weightedScore,
-             qualified: present >= threshold };
+// Required meetings = meetings where officer was marked present OR absent
+// Not in meeting = not counted at all
+// Sort: by rate DESC → tiebreak by required meetings DESC
+function computeRankings(officers, allAttendance) {
+  return officers.map(o => {
+    const records  = allAttendance.filter(a => a.officer_id === o.id);
+    const present  = records.filter(a => a.status === 'present').length;
+    const required = records.length; // present + absent (not-in-meeting records don't exist)
+    const rate     = required > 0 ? present / required : 0;
+    return { o, present, required, rate };
+  }).sort((a, b) => {
+    if (b.rate !== a.rate) return b.rate - a.rate;    // primary: rate
+    return b.required - a.required;                   // tiebreak: more required = higher
   });
-
-  const ranked   = scored.filter(s => s.qualified)
-                         .sort((a, b) => b.weightedScore - a.weightedScore);
-  const unranked = scored.filter(s => !s.qualified)
-                         .sort((a, b) => b.present - a.present);
-
-  return { ranked, unranked, threshold };
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -337,14 +383,15 @@ function renderDashboard() {
   const officers      = getOfficers();
   const meetings      = getMeetings();
   const allAttendance = allData.filter(d => d.type === 'attendance');
-  const totalMeetings = meetings.length;
 
   document.getElementById('stat-total-officers').textContent = officers.length;
-  document.getElementById('stat-total-meetings').textContent = totalMeetings;
+  document.getElementById('stat-total-meetings').textContent = meetings.length;
 
-  const present = allAttendance.filter(a => a.status === 'present').length;
-  const rate    = allAttendance.length ? Math.round(present / allAttendance.length * 100) : 0;
-  document.getElementById('stat-attendance-rate').textContent = rate + '%';
+  // Avg rate uses only required records (present+absent)
+  const totalPresent  = allAttendance.filter(a => a.status === 'present').length;
+  const totalRequired = allAttendance.length;
+  const avgRate = totalRequired ? Math.round(totalPresent / totalRequired * 100) : 0;
+  document.getElementById('stat-attendance-rate').textContent = avgRate + '%';
 
   const list = document.getElementById('officer-summary-list');
   const noEl = document.getElementById('no-summary');
@@ -352,80 +399,57 @@ function renderDashboard() {
   if (!officers.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
   noEl.style.display = 'none';
 
-  const { ranked, unranked, threshold } = computeRankings(officers, allAttendance, totalMeetings);
-  const topScore = ranked.length ? ranked[0].weightedScore : 1;
+  const ranked   = computeRankings(officers, allAttendance);
+  const topRate  = ranked.length ? ranked[0].rate : 1;
 
-  const medalIcon = (i) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
-  const rankBadgeClass = (i) => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+  const medalIcon      = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
+  const rankBadgeCls   = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+  const rateColor      = pct => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
 
-  const renderRow = (s, rankIndex) => {
-    const pct      = Math.round(s.attendanceRate * 100);
-    const barWidth = topScore > 0 ? Math.round((s.weightedScore / topScore) * 100) : 0;
-    const medal    = medalIcon(rankIndex);
-    const badgeCls = rankBadgeClass(rankIndex);
-    const rankNum  = rankIndex + 1;
-
-    // Colour the rate: green ≥80, amber ≥50, red <50
-    const rateColor = pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
+  list.innerHTML = ranked.map((s, i) => {
+    const pct      = Math.round(s.rate * 100);
+    const barWidth = topRate > 0 ? Math.round((s.rate / topRate) * 100) : 0;
+    const medal    = medalIcon(i);
+    const noData   = s.required === 0;
 
     return `<div class="bg-white rounded-xl p-3 shadow-sm flex items-center gap-3">
-      <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${badgeCls}">
-        ${medal ? medal : rankNum}
+      <!-- Rank badge -->
+      <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${rankBadgeCls(i)}">
+        ${medal ? medal : (i + 1)}
       </div>
+      <!-- Avatar -->
       <img src="${avatar(s.o)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+      <!-- Name + bar -->
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-gray-800 truncate">${esc(s.o.name)}</p>
         <p class="text-xs text-gray-400 truncate">${esc(s.o.position)}${s.o.committee ? ' · ' + esc(s.o.committee) : ''}</p>
-        <div class="mt-1.5 h-1.5 bg-pink-100 rounded-full overflow-hidden w-full">
-          <div class="h-full bg-pink-400 rounded-full score-bar-fill" style="width:${barWidth}%"></div>
-        </div>
+        ${noData
+          ? `<p class="text-[10px] text-gray-300 mt-1">No required meetings yet</p>`
+          : `<div class="mt-1.5 h-1.5 bg-pink-100 rounded-full overflow-hidden">
+               <div class="h-full bg-pink-400 rounded-full bar-fill" style="width:${barWidth}%"></div>
+             </div>`
+        }
       </div>
-      <div class="text-right flex-shrink-0 ml-1 space-y-0.5">
-        <p class="text-sm font-bold ${rateColor}">${pct}%
-          <span class="text-[10px] font-normal text-gray-400">rate</span>
-        </p>
-        <p class="text-[10px] text-gray-400">${s.present} of ${getMeetings().length} meetings</p>
-      </div>
-    </div>`;
-  };
-
-  let html = ranked.map((s, i) => renderRow(s, i)).join('');
-
-  if (unranked.length) {
-    html += `<div class="unranked-section">
-      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 px-1">
-        Unranked · needs ${threshold} meeting${threshold !== 1 ? 's' : ''} attended
-      </p>
-      <div class="space-y-2">
-        ${unranked.map(s => {
-          const pct = Math.round(s.attendanceRate * 100);
-          return `<div class="bg-white rounded-xl p-3 shadow-sm flex items-center gap-3 opacity-60">
-            <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-gray-100 text-gray-400">—</div>
-            <img src="${avatar(s.o)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-700 truncate">${esc(s.o.name)}</p>
-              <p class="text-xs text-gray-400 truncate">${esc(s.o.position)}${s.o.committee ? ' · ' + esc(s.o.committee) : ''}</p>
-            </div>
-            <div class="text-right flex-shrink-0 ml-1">
-              <p class="text-sm font-semibold text-gray-400">${pct}%</p>
-              <p class="text-[10px] text-gray-400">${s.present}/${threshold} needed</p>
-            </div>
-          </div>`;
-        }).join('')}
+      <!-- Stats -->
+      <div class="text-right flex-shrink-0 ml-1">
+        ${noData
+          ? `<p class="text-[10px] text-gray-300 leading-tight">Not in<br>any meeting</p>`
+          : `<p class="text-sm font-bold ${rateColor(pct)}">${pct}<span class="text-[10px] font-normal">%</span></p>
+             <p class="text-[10px] text-gray-400">${s.present} attended</p>
+             <p class="text-[10px] text-gray-300">${s.required} required</p>`
+        }
       </div>
     </div>`;
-  }
-
-  list.innerHTML = html;
+  }).join('');
 }
 
 // ── Officers ──────────────────────────────────────────────────────────────────
 function renderOfficers() {
   const q = (document.getElementById('officer-search')?.value || '').toLowerCase();
-  let officers = getOfficers().filter(o =>
+  const officers = getOfficers().filter(o =>
     o.name.toLowerCase().includes(q) ||
-    (o.committee || '').toLowerCase().includes(q) ||
-    (o.position  || '').toLowerCase().includes(q)
+    (o.committee||'').toLowerCase().includes(q) ||
+    (o.position ||'').toLowerCase().includes(q)
   );
   const body = document.getElementById('officers-body');
   const noEl = document.getElementById('no-officers');
@@ -442,12 +466,8 @@ function renderOfficers() {
             <p class="text-sm font-semibold text-gray-800 truncate">${esc(o.name)}</p>
             <p class="text-xs text-gray-400">${esc(o.position)}</p>
             <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-              <button onclick="editOfficer('${o.id}')" class="text-gray-400 hover:text-pink-500">
-                <i data-lucide="edit" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="deleteOfficer('${o.id}')" class="text-gray-400 hover:text-red-500">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
+              <button onclick="editOfficer('${o.id}')"   class="text-gray-400 hover:text-pink-500"><i data-lucide="edit"    class="w-3.5 h-3.5"></i></button>
+              <button onclick="deleteOfficer('${o.id}')" class="text-gray-400 hover:text-red-500"> <i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </div>
           </div>`).join('')}
       </div>
@@ -458,22 +478,19 @@ function renderOfficers() {
 function groupByCommittee(officers) {
   const map = new Map();
   for (const o of officers) {
-    const key = (o.committee || '').trim() || 'General';
+    const key = (o.committee||'').trim() || 'General';
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(o);
   }
-  const keys = [...map.keys()].sort((a, b) => {
-    if (a === 'General') return 1;
-    if (b === 'General') return -1;
-    return a.localeCompare(b);
+  const keys = [...map.keys()].sort((a,b) => {
+    if (a==='General') return 1; if (b==='General') return -1; return a.localeCompare(b);
   });
-  return keys.map(k => ({ label: k, members: map.get(k) }));
+  return keys.map(k => ({ label:k, members:map.get(k) }));
 }
 
 // ── Photo handling ────────────────────────────────────────────────────────────
 function handlePhotoFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+  const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
     pendingPhotoB64 = ev.target.result;
@@ -481,78 +498,61 @@ function handlePhotoFile(e) {
     document.getElementById('of-photo-preview').classList.remove('hidden');
     document.getElementById('of-photo-btn').classList.add('hidden');
   };
-  reader.readAsDataURL(file);
-  e.target.value = '';
+  reader.readAsDataURL(file); e.target.value = '';
 }
-
 function clearPhoto() {
   pendingPhotoB64 = null;
   document.getElementById('of-photo-preview').src = '';
   document.getElementById('of-photo-preview').classList.add('hidden');
   document.getElementById('of-photo-btn').classList.remove('hidden');
 }
-
 function refreshCommitteeList() {
-  const dl = document.getElementById('committee-list');
-  dl.innerHTML = getCommittees().map(c => `<option value="${esc(c)}">`).join('');
+  document.getElementById('committee-list').innerHTML =
+    getCommittees().map(c => `<option value="${esc(c)}">`).join('');
 }
-
 function showOfficerForm(id) {
-  editingOfficerId = id || null;
-  pendingPhotoB64  = null;
+  editingOfficerId = id || null; pendingPhotoB64 = null;
   document.getElementById('officer-form-container').classList.remove('hidden');
   document.getElementById('officer-form-title').textContent = id ? 'Edit Officer' : 'Add Officer';
   refreshCommitteeList();
   const o = id ? allData.find(d => d.id === id) : null;
-  document.getElementById('of-name').value      = o ? o.name      : '';
-  document.getElementById('of-position').value  = o ? o.position  : '';
-  document.getElementById('of-committee').value = o ? (o.committee || '') : '';
+  document.getElementById('of-name').value      = o ? o.name            : '';
+  document.getElementById('of-position').value  = o ? o.position        : '';
+  document.getElementById('of-committee').value = o ? (o.committee||'') : '';
   const preview = document.getElementById('of-photo-preview');
   const btn     = document.getElementById('of-photo-btn');
   if (o && o.photo) {
     preview.src = o.photo; preview.classList.remove('hidden');
     btn.classList.add('hidden'); pendingPhotoB64 = o.photo;
-  } else {
-    preview.classList.add('hidden'); btn.classList.remove('hidden');
-  }
+  } else { preview.classList.add('hidden'); btn.classList.remove('hidden'); }
   lucide.createIcons();
 }
-
 function hideOfficerForm() {
   document.getElementById('officer-form-container').classList.add('hidden');
   editingOfficerId = null; pendingPhotoB64 = null;
 }
-
 async function saveOfficer() {
   const name      = document.getElementById('of-name').value.trim();
   const position  = document.getElementById('of-position').value.trim();
   const committee = document.getElementById('of-committee').value.trim();
   const photo     = pendingPhotoB64 || '';
   if (!name || !position) { alert('Name and position are required.'); return; }
-
   if (editingOfficerId) {
     const idx = allData.findIndex(d => d.id === editingOfficerId);
-    if (idx !== -1) {
-      Object.assign(allData[idx], { name, position, committee, photo });
-      await persistSave(allData[idx]);
-    }
+    if (idx !== -1) { Object.assign(allData[idx], { name, position, committee, photo }); await persistSave(allData[idx]); }
   } else {
-    const item = { type:'officer', id: genId(), name, position, committee, photo };
-    allData.push(item);
-    await persistSave(item);
+    const item = { type:'officer', id:genId(), name, position, committee, photo };
+    allData.push(item); await persistSave(item);
   }
-  hideOfficerForm();
-  renderAll();
+  hideOfficerForm(); renderAll();
 }
-
 function editOfficer(id)   { showOfficerForm(id); }
-
 function deleteOfficer(id) {
   showConfirm('Delete this officer?', async () => {
-    const toDelete = allData.filter(d => d.type === 'attendance' && d.officer_id === id);
+    const toDelete = allData.filter(d => d.type==='attendance' && d.officer_id===id);
     for (const d of toDelete) await persistDelete(d.id);
     await persistDelete(id);
-    allData = allData.filter(d => !(d.type === 'attendance' && d.officer_id === id));
+    allData = allData.filter(d => !(d.type==='attendance' && d.officer_id===id));
     allData = allData.filter(d => d.id !== id);
     renderAll();
   });
@@ -564,80 +564,61 @@ function toggleMeetingSort() {
   document.getElementById('sort-label').textContent = meetingSortDesc ? 'Newest First' : 'Oldest First';
   renderMeetings();
 }
-
 function renderMeetings() {
-  let meetings = getMeetings().slice().sort((a, b) => {
+  const meetings = getMeetings().slice().sort((a,b) => {
     const cmp = a.meeting_date.localeCompare(b.meeting_date);
     return meetingSortDesc ? -cmp : cmp;
   });
   const list = document.getElementById('meetings-list');
   const noEl = document.getElementById('no-meetings');
-  if (!meetings.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
+  if (!meetings.length) { list.innerHTML=''; noEl.style.display=''; return; }
   noEl.style.display = 'none';
   list.innerHTML = meetings.map(m => `
     <div class="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:ring-2 hover:ring-pink-200 transition relative group"
          onclick="openAttendance('${m.id}')">
       <p class="font-semibold text-gray-800 text-sm">${esc(m.meeting_title)}</p>
-      <p class="text-xs text-gray-400">${m.meeting_date}${m.meeting_description ? ' · ' + esc(m.meeting_description) : ''}</p>
+      <p class="text-xs text-gray-400">${m.meeting_date}${m.meeting_description ? ' · '+esc(m.meeting_description) : ''}</p>
       <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition" onclick="event.stopPropagation()">
-        <button onclick="editMeeting('${m.id}')" class="text-gray-400 hover:text-pink-500">
-          <i data-lucide="edit" class="w-3.5 h-3.5"></i>
-        </button>
-        <button onclick="deleteMeeting('${m.id}')" class="text-gray-400 hover:text-red-500">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-        </button>
+        <button onclick="editMeeting('${m.id}')"   class="text-gray-400 hover:text-pink-500"><i data-lucide="edit"    class="w-3.5 h-3.5"></i></button>
+        <button onclick="deleteMeeting('${m.id}')" class="text-gray-400 hover:text-red-500"> <i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
       </div>
     </div>`).join('');
   lucide.createIcons();
 }
-
 function showMeetingForm(id) {
   editingMeetingId = id || null;
   document.getElementById('meeting-form-container').classList.remove('hidden');
   document.getElementById('meeting-form-title').textContent = id ? 'Edit Meeting' : 'Create Meeting';
-  const m = id ? allData.find(d => d.id === id) : null;
-  document.getElementById('mf-title').value = m ? m.meeting_title           : '';
-  document.getElementById('mf-date').value  = m ? m.meeting_date            : '';
+  const m = id ? allData.find(d => d.id===id) : null;
+  document.getElementById('mf-title').value = m ? m.meeting_title            : '';
+  document.getElementById('mf-date').value  = m ? m.meeting_date             : '';
   document.getElementById('mf-desc').value  = m ? (m.meeting_description||'') : '';
 }
-
 function hideMeetingForm() {
-  document.getElementById('meeting-form-container').classList.add('hidden');
-  editingMeetingId = null;
+  document.getElementById('meeting-form-container').classList.add('hidden'); editingMeetingId = null;
 }
-
 async function saveMeeting() {
   const meeting_title       = document.getElementById('mf-title').value.trim();
   const meeting_date        = document.getElementById('mf-date').value;
   const meeting_description = document.getElementById('mf-desc').value.trim();
   if (!meeting_title || !meeting_date) { alert('Title and date are required.'); return; }
-
   if (editingMeetingId) {
-    const idx = allData.findIndex(d => d.id === editingMeetingId);
-    if (idx !== -1) {
-      Object.assign(allData[idx], { meeting_title, meeting_date, meeting_description });
-      await persistSave(allData[idx]);
-    }
+    const idx = allData.findIndex(d => d.id===editingMeetingId);
+    if (idx !== -1) { Object.assign(allData[idx], { meeting_title, meeting_date, meeting_description }); await persistSave(allData[idx]); }
   } else {
-    const item = { type:'meeting', id: genId(), meeting_title, meeting_date, meeting_description };
-    allData.push(item);
-    await persistSave(item);
+    const item = { type:'meeting', id:genId(), meeting_title, meeting_date, meeting_description };
+    allData.push(item); await persistSave(item);
   }
-  hideMeetingForm();
-  renderAll();
+  hideMeetingForm(); renderAll();
 }
-
 function editMeeting(id)   { showMeetingForm(id); }
-
 function deleteMeeting(id) {
   showConfirm('Delete this meeting and its attendance records?', async () => {
-    const m = allData.find(d => d.id === id);
+    const m = allData.find(d => d.id===id);
     if (m) {
-      const toDelete = allData.filter(d =>
-        d.type === 'attendance' && d.meeting_title === m.meeting_title && d.meeting_date === m.meeting_date);
+      const toDelete = allData.filter(d => d.type==='attendance' && d.meeting_title===m.meeting_title && d.meeting_date===m.meeting_date);
       for (const d of toDelete) await persistDelete(d.id);
-      allData = allData.filter(d =>
-        !(d.type === 'attendance' && d.meeting_title === m.meeting_title && d.meeting_date === m.meeting_date));
+      allData = allData.filter(d => !(d.type==='attendance' && d.meeting_title===m.meeting_title && d.meeting_date===m.meeting_date));
     }
     await persistDelete(id);
     allData = allData.filter(d => d.id !== id);
@@ -647,7 +628,7 @@ function deleteMeeting(id) {
 
 // ── Attendance ────────────────────────────────────────────────────────────────
 function openAttendance(meetingId) {
-  currentMeeting = allData.find(d => d.id === meetingId);
+  currentMeeting = allData.find(d => d.id===meetingId);
   document.getElementById('meetings-list').style.display          = 'none';
   document.getElementById('no-meetings').style.display            = 'none';
   document.getElementById('meeting-form-container').classList.add('hidden');
@@ -657,7 +638,6 @@ function openAttendance(meetingId) {
   document.getElementById('att-search').value = '';
   renderAttendance();
 }
-
 function closeAttendance() {
   if (!currentMeeting) return;
   currentMeeting = null;
@@ -666,19 +646,18 @@ function closeAttendance() {
   document.getElementById('meetings-toolbar').style.display = '';
   renderMeetings();
 }
-
 function renderAttendance() {
   if (!currentMeeting) return;
-  const q       = (document.getElementById('att-search')?.value || '').toLowerCase();
+  const q        = (document.getElementById('att-search')?.value||'').toLowerCase();
   const officers = getOfficers().filter(o =>
     o.name.toLowerCase().includes(q) ||
-    (o.committee || '').toLowerCase().includes(q) ||
-    (o.position  || '').toLowerCase().includes(q)
+    (o.committee||'').toLowerCase().includes(q) ||
+    (o.position ||'').toLowerCase().includes(q)
   );
   const records     = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
   const allOfficers = getOfficers();
-  const present = records.filter(r => r.status === 'present').length;
-  const absent  = records.filter(r => r.status === 'absent').length;
+  const present = records.filter(r => r.status==='present').length;
+  const absent  = records.filter(r => r.status==='absent').length;
   document.getElementById('att-present').textContent = present;
   document.getElementById('att-absent').textContent  = absent;
   document.getElementById('att-none').textContent    = allOfficers.length - present - absent;
@@ -689,18 +668,13 @@ function renderAttendance() {
       <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         ${members.map(o => {
-          const rec    = records.find(r => r.officer_id === o.id);
+          const rec    = records.find(r => r.officer_id===o.id);
           const status = rec ? rec.status : 'none';
-          const ring   = status === 'present' ? 'ring-4 ring-green-400'
-                       : status === 'absent'  ? 'ring-4 ring-red-300' : '';
-          const dim    = status === 'none' ? 'opacity-50' : '';
-          const label2 = status === 'present' ? 'Present'
-                       : status === 'absent'  ? 'Absent' : 'Not in meeting';
-          const color  = status === 'present' ? 'text-green-600'
-                       : status === 'absent'  ? 'text-red-500' : 'text-gray-400';
-          const hint   = status === 'none'    ? 'Click to mark Present'
-                       : status === 'present' ? 'Click to mark Absent'
-                       : 'Click to remove from meeting';
+          const ring   = status==='present' ? 'ring-4 ring-green-400' : status==='absent' ? 'ring-4 ring-red-300' : '';
+          const dim    = status==='none' ? 'opacity-50' : '';
+          const label2 = status==='present' ? 'Present' : status==='absent' ? 'Absent' : 'Not in meeting';
+          const color  = status==='present' ? 'text-green-600' : status==='absent' ? 'text-red-500' : 'text-gray-400';
+          const hint   = status==='none' ? 'Click to mark Present' : status==='present' ? 'Click to mark Absent' : 'Click to remove from meeting';
           return `<div class="bg-white rounded-xl p-3 shadow-sm text-center ${ring} ${dim} transition cursor-pointer"
                        onclick="toggleAttendance('${o.id}')" title="${hint}">
             <img src="${avatar(o)}" class="w-14 h-14 mx-auto rounded-full object-cover mb-2">
@@ -711,28 +685,23 @@ function renderAttendance() {
       </div>
     </div>`).join('');
 }
-
 async function toggleAttendance(officerId) {
   if (!currentMeeting) return;
   const records = getAttendance(currentMeeting.meeting_title, currentMeeting.meeting_date);
-  const rec     = records.find(r => r.officer_id === officerId);
-
+  const rec     = records.find(r => r.officer_id===officerId);
   if (!rec) {
-    const item = { type:'attendance', id: genId(),
-      meeting_title: currentMeeting.meeting_title,
-      meeting_date:  currentMeeting.meeting_date,
-      officer_id: officerId, status: 'present' };
-    allData.push(item);
-    await persistSave(item);
-  } else if (rec.status === 'present') {
-    allData.find(d => d.id === rec.id).status = 'absent';
-    await persistSave(allData.find(d => d.id === rec.id));
+    const item = { type:'attendance', id:genId(),
+      meeting_title:currentMeeting.meeting_title, meeting_date:currentMeeting.meeting_date,
+      officer_id:officerId, status:'present' };
+    allData.push(item); await persistSave(item);
+  } else if (rec.status==='present') {
+    allData.find(d => d.id===rec.id).status = 'absent';
+    await persistSave(allData.find(d => d.id===rec.id));
   } else {
     await persistDelete(rec.id);
-    allData = allData.filter(d => d.id !== rec.id);
+    allData = allData.filter(d => d.id!==rec.id);
   }
-  renderAttendance();
-  renderDashboard();
+  renderAttendance(); renderDashboard();
 }
 
 // ── Confirm dialog ────────────────────────────────────────────────────────────
@@ -743,12 +712,10 @@ function showConfirm(msg, cb) {
 }
 function confirmYes() {
   document.getElementById('confirm-overlay').classList.add('hidden');
-  if (confirmCallback) confirmCallback();
-  confirmCallback = null;
+  if (confirmCallback) confirmCallback(); confirmCallback = null;
 }
 function confirmNo() {
-  document.getElementById('confirm-overlay').classList.add('hidden');
-  confirmCallback = null;
+  document.getElementById('confirm-overlay').classList.add('hidden'); confirmCallback = null;
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
