@@ -6,6 +6,14 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBAdWVto0vUd3Wuw_lLLQUrHqizo_2h3Dk",
@@ -16,60 +24,69 @@ const firebaseConfig = {
   appId: "1:29544428843:web:b9541410d1c862d3e0016e"
 };
 
-const app = initializeApp(firebaseConfig);
+const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db   = getFirestore(app);
 
-// ✅ Wait for DOM to be ready before touching any elements
+// ── Firestore helpers (exposed to index.html) ────────────────────────────────
+
+window.fsLoadData = async function(userId) {
+  const snap = await getDocs(collection(db, "users", userId, "data"));
+  return snap.docs.map(d => d.data());
+};
+
+window.fsSaveItem = async function(userId, item) {
+  await setDoc(doc(db, "users", userId, "data", item.id), item);
+};
+
+window.fsDeleteItem = async function(userId, itemId) {
+  await deleteDoc(doc(db, "users", userId, "data", itemId));
+};
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+
 document.addEventListener("DOMContentLoaded", () => {
-
-  const email     = document.getElementById("email");
-  const password  = document.getElementById("password");
+  const emailEl   = document.getElementById("email");
+  const passwordEl = document.getElementById("password");
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn  = document.getElementById("loginBtn");
 
-  // SIGN UP
   signupBtn.addEventListener("click", async () => {
-    if (!email.value || !password.value) {
-      alert("Please fill all fields.");
-      return;
-    }
+    if (!emailEl.value || !passwordEl.value) { alert("Please fill all fields."); return; }
     try {
-      await createUserWithEmailAndPassword(auth, email.value, password.value);
-      alert("Account created successfully!");
-    } catch (error) {
-      alert(error.message);
-    }
+      await createUserWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
+      alert("Account created! You are now logged in.");
+    } catch (e) { alert(e.message); }
   });
 
-  // LOGIN
   loginBtn.addEventListener("click", async () => {
-    if (!email.value || !password.value) {
-      alert("Please fill all fields.");
-      return;
-    }
+    if (!emailEl.value || !passwordEl.value) { alert("Please fill all fields."); return; }
     try {
-      await signInWithEmailAndPassword(auth, email.value, password.value);
-    } catch (error) {
-      alert(error.message);
-    }
+      await signInWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
+    } catch (e) { alert(e.message); }
   });
 
-  // AUTH STATE — show/hide screens
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     const authScreen = document.getElementById("auth-screen");
     const appContent = document.getElementById("app-content");
     if (user) {
+      // Store uid globally for the app script to use
+      window.currentUserId = user.uid;
+      // Load this user's data from Firestore then render
+      window.allData = await window.fsLoadData(user.uid);
       authScreen.style.display = "none";
       appContent.style.display = "block";
+      if (typeof renderAll === "function") renderAll();
+      if (typeof lucide !== "undefined") lucide.createIcons();
     } else {
+      window.currentUserId = null;
+      window.allData = [];
       authScreen.style.display = "flex";
       appContent.style.display = "none";
     }
   });
-
 });
 
-// ✅ logoutUser stays on window so the inline onclick can reach it
 window.logoutUser = async function () {
   await signOut(auth);
 };
