@@ -160,15 +160,16 @@
     /* ── Splash / auth-check screen ── */
     #splash-screen {
       position: fixed; inset: 0; background: #fdf2f8;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       z-index: 99999;
-      transition: opacity 0.5s ease;
     }
-    #splash-screen.hide {
+    #splash-screen.fade {
+      transition: opacity 0.45s ease;
       opacity: 0;
       pointer-events: none;
     }
+    #splash-screen.gone { display: none; }
     .splash-logo {
       height: 64px; width: auto; object-fit: contain;
       margin-bottom: 28px;
@@ -201,9 +202,8 @@
 
 <body class="min-h-screen bg-pink-50">
 
-  <!-- ── SPLASH / AUTH-CHECK SCREEN ── -->
-  <!-- Only shown when Firebase detects a persisted session -->
-  <div id="splash-screen" style="display:none;">
+  <!-- SPLASH: always visible on load, dismissed instantly or with fade by register.js -->
+  <div id="splash-screen">
     <img src="logo.png" alt="Attendify" class="splash-logo">
     <div class="splash-dots">
       <span></span><span></span><span></span>
@@ -211,7 +211,7 @@
     <p class="splash-label">Checking login…</p>
   </div>
 
-  <!-- LOGIN SCREEN (visibility controlled by JS below) -->
+  <!-- LOGIN SCREEN: hidden behind splash; shown only after Firebase confirms no session -->
   <div id="auth-screen" class="fixed inset-0 bg-pink-50 items-center justify-center z-[9999] px-4" style="display:none;">
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
       <img src="logo.png" alt="Attendify" class="h-16 w-auto mx-auto mb-6 object-contain">
@@ -553,51 +553,41 @@
   </div><!-- end app-content -->
 
   <script>
-// ── Splash / auth state ─────────────────────────────────────────────────────
-// Both splash and auth-screen start as display:none in HTML.
-// This runs synchronously and immediately decides which to show.
-// No IIFE timing issues — we set display directly, not via class toggling.
-var _hasFirebaseSession = false;
-try {
-  _hasFirebaseSession = Object.keys(localStorage).some(function(k) {
-    return k.startsWith('firebase:authUser');
-  });
-} catch(e) {}
+// ── Splash helpers ─────────────────────────────────────────────────────────────────────────────
+// The splash is always shown on load (covers everything instantly).
+// register.js calls window.resolveSplash() once onAuthStateChanged fires.
+//
+//   resolveSplash(true)  → user logged in  → fade splash out gracefully
+//   resolveSplash(false) → not logged in   → remove splash instantly, show login
+//
+// This means:
+//   - Logged-in users on refresh: see branded loading screen → smooth fade to app
+//   - New / logged-out users: splash disappears so fast they never notice it
+//   - Login screen never flashes for logged-in users
 
-if (_hasFirebaseSession) {
-  // Returning user — show splash, keep login hidden
-  document.getElementById('splash-screen').style.display = 'flex';
-} else {
-  // New/logged-out user — show login immediately, no splash
-  document.getElementById('auth-screen').style.display = 'flex';
-}
-
-// Called by register.js inside onAuthStateChanged(auth, user => { ... })
-//   window.resolveSplash(true)  — Firebase confirmed logged in
-//   window.resolveSplash(false) — Firebase confirmed logged out
 window.resolveSplash = function(isLoggedIn) {
   var splash = document.getElementById('splash-screen');
   var auth   = document.getElementById('auth-screen');
   var app    = document.getElementById('app-content');
 
-  // Fade out splash then hide it
-  splash.style.opacity = '0';
-  setTimeout(function() { splash.style.display = 'none'; }, 500);
-
   if (isLoggedIn) {
-    auth.style.display = 'none';
-    // register.js already sets app-content to display:block
+    // Fade the splash out, then fully remove it
+    splash.classList.add('fade');
+    setTimeout(function() { splash.classList.add('gone'); }, 460);
+    if (auth) auth.style.display = 'none';
+    // register.js handles showing app-content
   } else {
-    auth.style.display = 'flex';
-    if (app) app.style.display = 'none';
+    // Not logged in — kill splash instantly, show login form
+    splash.classList.add('gone');
+    if (auth) auth.style.display = 'flex';
+    if (app)  app.style.display  = 'none';
   }
 };
 
-// Safety fallback — if register.js never calls resolveSplash (e.g. slow network)
-// dismiss the splash after 8s and show the login form
+// Safety net: if register.js never calls resolveSplash within 8s, show login
 setTimeout(function() {
   var splash = document.getElementById('splash-screen');
-  if (splash && splash.style.display !== 'none') {
+  if (splash && !splash.classList.contains('gone')) {
     window.resolveSplash(false);
   }
 }, 8000);
