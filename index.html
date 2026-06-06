@@ -156,12 +156,63 @@
       transition: background .15s, color .15s;
     }
     .icon-btn-delete:hover { background:#fee2e2; color:#ef4444; }
+
+    /* ── Splash / auth-check screen ── */
+    #splash-screen {
+      position: fixed; inset: 0; background: #fdf2f8;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    #splash-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .splash-logo {
+      height: 64px; width: auto; object-fit: contain;
+      margin-bottom: 28px;
+      animation: splash-pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes splash-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.75; transform: scale(0.97); }
+    }
+    .splash-dots {
+      display: flex; gap: 8px; margin-top: 4px;
+    }
+    .splash-dots span {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #f9a8d4;
+      animation: splash-bounce 1.2s ease-in-out infinite;
+    }
+    .splash-dots span:nth-child(2) { animation-delay: .2s; background: #f472b6; }
+    .splash-dots span:nth-child(3) { animation-delay: .4s; background: #ec4899; }
+    @keyframes splash-bounce {
+      0%, 80%, 100% { transform: translateY(0);   opacity: .5; }
+      40%           { transform: translateY(-8px); opacity: 1;  }
+    }
+    .splash-label {
+      margin-top: 16px; font-size: 13px; font-weight: 500;
+      color: #db2777; letter-spacing: .02em;
+    }
   </style>
 </head>
 
 <body class="min-h-screen bg-pink-50">
 
-  <!-- LOGIN SCREEN -->
+  <!-- ── SPLASH / AUTH-CHECK SCREEN ── -->
+  <!-- Only shown when Firebase detects a persisted session -->
+  <div id="splash-screen" style="display:none;">
+    <img src="logo.png" alt="Attendify" class="splash-logo">
+    <div class="splash-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <p class="splash-label">Checking login…</p>
+  </div>
+
+  <!-- LOGIN SCREEN (shown by default; hidden if a session is detected) -->
   <div id="auth-screen" class="fixed inset-0 bg-pink-50 flex items-center justify-center z-[9999] px-4">
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
       <img src="logo.png" alt="Attendify" class="h-16 w-auto mx-auto mb-6 object-contain">
@@ -503,6 +554,53 @@
   </div><!-- end app-content -->
 
   <script>
+// ── Splash screen helpers ─────────────────────────────────────────────────────
+// Firebase stores its session under a key matching this pattern in localStorage.
+// We check for it BEFORE onAuthStateChanged fires so we know whether to show
+// the splash at all. New/logged-out users see the login form immediately.
+(function() {
+  var hasSession = Object.keys(localStorage).some(function(k) {
+    return k.indexOf('firebase:authUser') !== -1;
+  });
+  if (hasSession) {
+    // Likely logged in — show splash, hide login form until Firebase confirms
+    var splash = document.getElementById('splash-screen');
+    var auth   = document.getElementById('auth-screen');
+    if (splash) splash.style.display = 'flex';
+    if (auth)   auth.style.display   = 'none';
+  }
+  // If no session key: splash stays hidden (display:none), login form stays visible
+})();
+
+// Called by register.js once Firebase's onAuthStateChanged fires.
+//   resolveSplash(true)  → confirmed logged in  → fade out splash, keep app visible
+//   resolveSplash(false) → confirmed logged out → fade out splash, show login form
+window.resolveSplash = function(isLoggedIn) {
+  var splash = document.getElementById('splash-screen');
+  var auth   = document.getElementById('auth-screen');
+  var app    = document.getElementById('app-content');
+  // Fade out splash (only visible if hasSession was true above)
+  if (splash) splash.classList.add('hide');
+  if (isLoggedIn) {
+    if (auth) auth.style.display = 'none';
+    // app-content is shown by register.js
+  } else {
+    // Session key existed but Firebase rejected it (expired/revoked) — show login
+    if (auth) auth.style.display = 'flex';
+    if (app)  app.style.display  = 'none';
+  }
+};
+
+// Safety net: remove splash after 6 s if register.js never calls resolveSplash
+setTimeout(function() {
+  var splash = document.getElementById('splash-screen');
+  if (splash && !splash.classList.contains('hide')) {
+    splash.classList.add('hide');
+    var auth = document.getElementById('auth-screen');
+    if (auth) auth.style.display = 'flex';
+  }
+}, 6000);
+
 // ── SVG icon helpers (inline — no Lucide dependency for small buttons) ────────
 const SVG_EDIT = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
 const SVG_TRASH = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
