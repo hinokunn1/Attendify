@@ -212,8 +212,8 @@
     <p class="splash-label">Checking login…</p>
   </div>
 
-  <!-- LOGIN SCREEN (shown by default; hidden if a session is detected) -->
-  <div id="auth-screen" class="fixed inset-0 bg-pink-50 flex items-center justify-center z-[9999] px-4">
+  <!-- LOGIN SCREEN (visibility controlled by JS below) -->
+  <div id="auth-screen" class="fixed inset-0 bg-pink-50 items-center justify-center z-[9999] px-4" style="display:none;">
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
       <img src="logo.png" alt="Attendify" class="h-16 w-auto mx-auto mb-6 object-contain">
       <input type="email"     id="email"    placeholder="Email"    class="w-full px-4 py-3 border rounded-lg mb-3">
@@ -555,43 +555,51 @@
 
   <script>
 // ── Splash screen helpers ─────────────────────────────────────────────────────
-// Firebase stores its session under a key matching this pattern in localStorage.
-// We check for it BEFORE onAuthStateChanged fires so we know whether to show
-// the splash at all. New/logged-out users see the login form immediately.
+// Strategy: check localStorage for ANY firebase session key.
+// Firebase uses keys like: firebase:authUser:<apiKey>:[DEFAULT]
+// If found → user was previously logged in → show splash, hide login.
+// If not found → brand new / logged-out user → skip splash, show login immediately.
 (function() {
-  var hasSession = Object.keys(localStorage).some(function(k) {
-    return k.indexOf('firebase:authUser') !== -1;
-  });
+  var hasSession = false;
+  try {
+    hasSession = Object.keys(localStorage).some(function(k) {
+      return k.indexOf('firebase:authUser') === 0;
+    });
+  } catch(e) {}
+
+  var splash = document.getElementById('splash-screen');
+  var auth   = document.getElementById('auth-screen');
+
   if (hasSession) {
-    // Likely logged in — show splash, hide login form until Firebase confirms
-    var splash = document.getElementById('splash-screen');
-    var auth   = document.getElementById('auth-screen');
     if (splash) splash.style.display = 'flex';
     if (auth)   auth.style.display   = 'none';
+  } else {
+    if (splash) splash.style.display = 'none';
+    if (auth)   auth.style.display   = 'flex';
   }
-  // If no session key: splash stays hidden (display:none), login form stays visible
 })();
 
-// Called by register.js once Firebase's onAuthStateChanged fires.
-//   resolveSplash(true)  → confirmed logged in  → fade out splash, keep app visible
-//   resolveSplash(false) → confirmed logged out → fade out splash, show login form
+// Called by register.js inside onAuthStateChanged.
+//   window.resolveSplash(true)  → user is logged in  → hide splash, app already shown by register.js
+//   window.resolveSplash(false) → user is logged out → hide splash, show login form
 window.resolveSplash = function(isLoggedIn) {
   var splash = document.getElementById('splash-screen');
   var auth   = document.getElementById('auth-screen');
   var app    = document.getElementById('app-content');
-  // Fade out splash (only visible if hasSession was true above)
+
   if (splash) splash.classList.add('hide');
+
   if (isLoggedIn) {
     if (auth) auth.style.display = 'none';
-    // app-content is shown by register.js
+    // app-content is shown by register.js — nothing extra needed here
   } else {
-    // Session key existed but Firebase rejected it (expired/revoked) — show login
     if (auth) auth.style.display = 'flex';
     if (app)  app.style.display  = 'none';
   }
 };
 
-// Safety net: remove splash after 6 s if register.js never calls resolveSplash
+// Safety net: if register.js never calls resolveSplash within 8s (slow network),
+// dismiss the splash and fall back to showing the login screen.
 setTimeout(function() {
   var splash = document.getElementById('splash-screen');
   if (splash && !splash.classList.contains('hide')) {
@@ -599,7 +607,7 @@ setTimeout(function() {
     var auth = document.getElementById('auth-screen');
     if (auth) auth.style.display = 'flex';
   }
-}, 6000);
+}, 8000);
 
 // ── SVG icon helpers (inline — no Lucide dependency for small buttons) ────────
 const SVG_EDIT = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
