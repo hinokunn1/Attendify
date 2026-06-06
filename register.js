@@ -29,27 +29,23 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 // ── Firestore helpers (exposed to index.html) ────────────────────────────────
-
 window.fsLoadData = async function(userId) {
   const snap = await getDocs(collection(db, "users", userId, "data"));
   return snap.docs.map(d => d.data());
 };
-
 window.fsSaveItem = async function(userId, item) {
   await setDoc(doc(db, "users", userId, "data", item.id), item);
 };
-
 window.fsDeleteItem = async function(userId, itemId) {
   await deleteDoc(doc(db, "users", userId, "data", itemId));
 };
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
-
 document.addEventListener("DOMContentLoaded", () => {
-  const emailEl   = document.getElementById("email");
+  const emailEl    = document.getElementById("email");
   const passwordEl = document.getElementById("password");
-  const signupBtn = document.getElementById("signupBtn");
-  const loginBtn  = document.getElementById("loginBtn");
+  const signupBtn  = document.getElementById("signupBtn");
+  const loginBtn   = document.getElementById("loginBtn");
 
   signupBtn.addEventListener("click", async () => {
     if (!emailEl.value || !passwordEl.value) { alert("Please fill all fields."); return; }
@@ -69,20 +65,28 @@ document.addEventListener("DOMContentLoaded", () => {
   onAuthStateChanged(auth, async (user) => {
     const authScreen = document.getElementById("auth-screen");
     const appContent = document.getElementById("app-content");
+
     if (user) {
-      // Store uid globally for the app script to use
       window.currentUserId = user.uid;
-      // Load this user's data from Firestore then render
       window.allData = await window.fsLoadData(user.uid);
+
       authScreen.style.display = "none";
       appContent.style.display = "block";
+
       if (typeof renderAll === "function") renderAll();
       if (typeof lucide !== "undefined") lucide.createIcons();
+
+      // ✅ Tell the splash the user is logged in → fade out gracefully
+      if (typeof window.resolveSplash === "function") window.resolveSplash(true);
     } else {
       window.currentUserId = null;
       window.allData = [];
+
       authScreen.style.display = "flex";
       appContent.style.display = "none";
+
+      // ✅ Tell the splash no session → disappear instantly, show login
+      if (typeof window.resolveSplash === "function") window.resolveSplash(false);
     }
   });
 });
