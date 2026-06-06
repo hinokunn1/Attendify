@@ -40,6 +40,16 @@ window.fsDeleteItem = async function(userId, itemId) {
   await deleteDoc(doc(db, "users", userId, "data", itemId));
 };
 
+// ── Show splash manually (re-shows it after it was hidden) ───────────────────
+function showSplash(label) {
+  const splash = document.getElementById("splash-screen");
+  if (!splash) return;
+  splash.classList.remove("fade", "gone");
+  splash.style.opacity = "1";
+  const labelEl = splash.querySelector(".splash-label");
+  if (labelEl) labelEl.textContent = label || "Loading…";
+}
+
 // ── Auth ─────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   const emailEl    = document.getElementById("email");
@@ -50,16 +60,25 @@ document.addEventListener("DOMContentLoaded", () => {
   signupBtn.addEventListener("click", async () => {
     if (!emailEl.value || !passwordEl.value) { alert("Please fill all fields."); return; }
     try {
+      showSplash("Creating account…");
       await createUserWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
-      alert("Account created! You are now logged in.");
-    } catch (e) { alert(e.message); }
+      // onAuthStateChanged will fire next and handle the rest
+    } catch (e) {
+      if (typeof window.resolveSplash === "function") window.resolveSplash(false);
+      alert(e.message);
+    }
   });
 
   loginBtn.addEventListener("click", async () => {
     if (!emailEl.value || !passwordEl.value) { alert("Please fill all fields."); return; }
     try {
+      showSplash("Signing in…");
       await signInWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
-    } catch (e) { alert(e.message); }
+      // onAuthStateChanged will fire next and handle the rest
+    } catch (e) {
+      if (typeof window.resolveSplash === "function") window.resolveSplash(false);
+      alert(e.message);
+    }
   });
 
   onAuthStateChanged(auth, async (user) => {
@@ -76,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof renderAll === "function") renderAll();
       if (typeof lucide !== "undefined") lucide.createIcons();
 
-      // ✅ Tell the splash the user is logged in → fade out gracefully
+      // Fade splash out gracefully once app is ready
       if (typeof window.resolveSplash === "function") window.resolveSplash(true);
     } else {
       window.currentUserId = null;
@@ -85,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
       authScreen.style.display = "flex";
       appContent.style.display = "none";
 
-      // ✅ Tell the splash no session → disappear instantly, show login
+      // No session — kill splash instantly, show login
       if (typeof window.resolveSplash === "function") window.resolveSplash(false);
     }
   });
