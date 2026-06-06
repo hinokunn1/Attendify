@@ -52,6 +52,19 @@
 
     .unranked-section { border-top:2px dashed #fbcfe8; padding-top:12px; margin-top:8px; }
 
+    /* Section headers in dashboard */
+    .section-header {
+      display:flex; align-items:center; gap:8px;
+      margin-top:20px; margin-bottom:10px;
+    }
+    .section-header-label {
+      font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    }
+    .section-header-line {
+      flex:1; height:1px; background:#fbcfe8;
+    }
+    .core-section-header { background:linear-gradient(90deg,#fdf2f8,transparent); border-radius:8px; padding:6px 10px; margin-bottom:8px; }
+
     /* Info modal animation */
     #ranking-modal { transition: opacity .2s; }
     #ranking-modal.hidden { opacity:0; pointer-events:none; }
@@ -60,11 +73,16 @@
     #officer-profile-modal { transition: opacity .2s; }
     #officer-profile-modal.hidden { opacity:0; pointer-events:none; }
 
-    /* Attendance card active states - pre-defined so no recalc on click */
+    /* Attendance card active states */
     .att-card { transition: box-shadow .1s, opacity .1s; }
     .att-card-present { box-shadow: 0 0 0 4px #4ade80; opacity: 1; }
     .att-card-absent  { box-shadow: 0 0 0 4px #fca5a5; opacity: 1; }
     .att-card-none    { opacity: 0.5; }
+
+    /* Role toggle */
+    .role-btn { transition: all .15s; border:2px solid #fbcfe8; }
+    .role-btn.selected-core { border-color:#ec4899; background:#fdf2f8; color:#be185d; font-weight:600; }
+    .role-btn.selected-member { border-color:#a78bfa; background:#f5f3ff; color:#6d28d9; font-weight:600; }
   </style>
 </head>
 
@@ -149,6 +167,8 @@
         <div id="officer-form-container" class="hidden bg-white rounded-xl p-4 shadow-sm mb-4">
           <h3 class="font-semibold text-gray-700 mb-3" id="officer-form-title">Add Officer</h3>
           <div class="space-y-3">
+
+            <!-- Photo -->
             <div class="flex items-center gap-4">
               <div>
                 <img id="of-photo-preview" class="photo-preview hidden">
@@ -162,14 +182,33 @@
                 <button type="button" onclick="clearPhoto()" class="text-pink-400 underline mt-1">Remove photo</button>
               </div>
             </div>
+
+            <!-- Role selector -->
+            <div>
+              <p class="text-xs text-gray-500 mb-1.5 font-medium">Role</p>
+              <div class="flex gap-2">
+                <button type="button" id="role-btn-core"
+                  onclick="setRole('core')"
+                  class="role-btn flex-1 py-2 rounded-lg text-sm text-gray-500 selected-core">
+                  ⭐ Core Officer
+                </button>
+                <button type="button" id="role-btn-member"
+                  onclick="setRole('member')"
+                  class="role-btn flex-1 py-2 rounded-lg text-sm text-gray-500">
+                  👥 Committee Member
+                </button>
+              </div>
+            </div>
+
             <input id="of-name"      type="text" placeholder="Full Name" class="w-full px-3 py-2 border rounded-lg text-sm">
             <input id="of-position"  type="text" placeholder="Position"  class="w-full px-3 py-2 border rounded-lg text-sm">
-            <div>
+            <div id="committee-field-wrapper">
               <input id="of-committee" type="text" placeholder="Committee (e.g. Academic, Finance…)"
                 list="committee-list" autocomplete="off"
                 class="w-full px-3 py-2 border rounded-lg text-sm">
               <datalist id="committee-list"></datalist>
             </div>
+
             <div class="flex gap-2">
               <button onclick="saveOfficer()"    class="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Save</button>
               <button onclick="hideOfficerForm()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm">Cancel</button>
@@ -246,7 +285,7 @@
 
     <!-- ── Ranking info modal ── -->
     <div id="ranking-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-xl">
+      <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-xl overflow-y-auto max-h-[90vh]">
 
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold text-gray-800 text-base">How Rankings Work</h3>
@@ -255,11 +294,32 @@
           </button>
         </div>
 
-        <!-- Step 1 -->
+        <!-- Two leaderboards -->
         <div class="mb-3">
-          <p class="text-xs font-bold text-gray-700 mb-1.5">① Only required meetings count</p>
+          <p class="text-xs font-bold text-gray-700 mb-1.5">① Two separate leaderboards</p>
+          <div class="rounded-xl overflow-hidden border border-gray-100 text-xs">
+            <div class="flex items-start gap-2 px-3 py-2.5 bg-pink-50">
+              <span class="text-base leading-none mt-0.5">⭐</span>
+              <div>
+                <span class="font-semibold text-pink-700">Core Officers</span>
+                <span class="text-gray-500"> — ranked together in a single leaderboard at the top of the dashboard, regardless of committee.</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 px-3 py-2.5 bg-violet-50">
+              <span class="text-base leading-none mt-0.5">👥</span>
+              <div>
+                <span class="font-semibold text-violet-700">Committee Members</span>
+                <span class="text-gray-500"> — ranked within their own committee. Each committee has its own #1, #2, #3.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="mb-3">
+          <p class="text-xs font-bold text-gray-700 mb-1.5">② Only required meetings count</p>
           <p class="text-xs text-gray-500 leading-relaxed mb-2">
-            Not every officer attends every meeting — and that's fine. An officer is only judged on meetings they were expected to attend.
+            Officers are only judged on meetings they were expected to attend.
           </p>
           <div class="rounded-xl overflow-hidden border border-gray-100 text-xs">
             <div class="flex items-center gap-2 px-3 py-2 bg-green-50">
@@ -268,36 +328,36 @@
             </div>
             <div class="flex items-center gap-2 px-3 py-2 bg-red-50">
               <span class="w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center font-bold flex-shrink-0">✗</span>
-              <div><span class="font-semibold text-red-600">Absent</span> <span class="text-gray-500">— was required but didn't come. Still counts as required.</span></div>
+              <div><span class="font-semibold text-red-600">Absent</span> <span class="text-gray-500">— required but didn't come. Still counts.</span></div>
             </div>
             <div class="flex items-center gap-2 px-3 py-2 bg-gray-50">
               <span class="w-5 h-5 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold flex-shrink-0">—</span>
-              <div><span class="font-semibold text-gray-500">Not required</span> <span class="text-gray-400">— not their meeting. Completely ignored.</span></div>
+              <div><span class="font-semibold text-gray-500">Not required</span> <span class="text-gray-400">— completely ignored.</span></div>
             </div>
           </div>
         </div>
 
-        <!-- Step 2 -->
+        <!-- Step 3 -->
         <div class="mb-3">
-          <p class="text-xs font-bold text-gray-700 mb-1.5">② Attendance rate = attended ÷ required</p>
+          <p class="text-xs font-bold text-gray-700 mb-1.5">③ Attendance rate = attended ÷ required</p>
           <div class="bg-pink-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
-            If an officer attended <strong>8 out of 10</strong> meetings they were required for, their rate is <strong class="text-pink-600">80%</strong>. The other meetings they weren't part of don't affect this.
+            If an officer attended <strong>8 out of 10</strong> required meetings, their rate is <strong class="text-pink-600">80%</strong>.
           </div>
         </div>
 
-        <!-- Step 3: tiebreaker -->
+        <!-- Step 4 -->
         <div class="mb-3">
-          <p class="text-xs font-bold text-gray-700 mb-1.5">③ Same rate? More meetings wins.</p>
+          <p class="text-xs font-bold text-gray-700 mb-1.5">④ Same rate? More meetings wins.</p>
           <p class="text-xs text-gray-500 leading-relaxed">
-            Being perfect across 10 required meetings ranks higher than perfect across 2.
+            Perfect across 10 required meetings ranks higher than perfect across 2.
           </p>
         </div>
 
-        <!-- Step 4: threshold -->
+        <!-- Step 5 -->
         <div class="mb-4">
-          <p class="text-xs font-bold text-gray-700 mb-1.5">④ 30% threshold to be ranked</p>
+          <p class="text-xs font-bold text-gray-700 mb-1.5">⑤ 30% threshold to be ranked</p>
           <div class="bg-amber-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
-            Officers must be required for at least <strong class="text-amber-600">30% of all meetings</strong> to appear in the ranked list. Those below appear in the <span class="font-semibold text-gray-500">Unranked</span> section until they meet the threshold.
+            Officers must be required for at least <strong class="text-amber-600">30% of all meetings</strong> to appear in the ranked list. Those below appear in the <span class="font-semibold text-gray-500">Unranked</span> section.
           </div>
         </div>
 
@@ -321,9 +381,10 @@
           <div class="flex items-center gap-4">
             <img id="op-avatar" src="" class="w-16 h-16 rounded-full object-cover border-2 border-white/50 flex-shrink-0">
             <div>
-              <p id="op-name"     class="text-white font-bold text-lg leading-tight"></p>
-              <p id="op-position" class="text-pink-100 text-sm"></p>
+              <p id="op-name"      class="text-white font-bold text-lg leading-tight"></p>
+              <p id="op-position"  class="text-pink-100 text-sm"></p>
               <p id="op-committee" class="text-pink-200 text-xs mt-0.5"></p>
+              <span id="op-role-badge" class="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"></span>
             </div>
           </div>
         </div>
@@ -347,7 +408,7 @@
         <!-- Rank + progress -->
         <div class="px-5 pt-5 pb-2">
           <div id="op-rank-row" class="flex items-center justify-between mb-3">
-            <span class="text-xs text-gray-500 font-medium">Overall Rank</span>
+            <span id="op-rank-label" class="text-xs text-gray-500 font-medium">Overall Rank</span>
             <span id="op-rank-badge" class="text-sm font-bold px-3 py-1 rounded-full"></span>
           </div>
           <!-- Progress bar -->
@@ -389,9 +450,9 @@ let currentMeeting   = null;
 let confirmCallback  = null;
 let meetingSortDesc  = true;
 let pendingPhotoB64  = null;
+let pendingRole      = 'core'; // 'core' | 'member'
 
-// ── Attendance cache — rebuilt once per openAttendance / renderAttendance call ──
-// Maps officerId -> { status, recordId }
+// ── Attendance cache ──────────────────────────────────────────────────────────
 let _attCache = {};
 
 function buildAttCache() {
@@ -410,8 +471,10 @@ async function persistDelete(itemId) {
 }
 
 // ── Getters ───────────────────────────────────────────────────────────────────
-function getOfficers() { return allData.filter(d => d.type === 'officer'); }
-function getMeetings() { return allData.filter(d => d.type === 'meeting'); }
+function getOfficers()  { return allData.filter(d => d.type === 'officer'); }
+function getMeetings()  { return allData.filter(d => d.type === 'meeting'); }
+function getCoreOfficers()   { return getOfficers().filter(o => (o.role || 'core') === 'core'); }
+function getCommitteeMembers() { return getOfficers().filter(o => o.role === 'member'); }
 function getAttendance(title, date) {
   return allData.filter(d => d.type === 'attendance' && d.meeting_title === title && d.meeting_date === date);
 }
@@ -431,16 +494,10 @@ function switchTab(tab) {
 }
 
 // ── Ranking modal ─────────────────────────────────────────────────────────────
-function openRankingInfo() {
-  document.getElementById('ranking-modal').classList.remove('hidden');
-  lucide.createIcons();
-}
-function closeRankingInfo() {
-  document.getElementById('ranking-modal').classList.add('hidden');
-}
+function openRankingInfo()  { document.getElementById('ranking-modal').classList.remove('hidden'); lucide.createIcons(); }
+function closeRankingInfo() { document.getElementById('ranking-modal').classList.add('hidden'); }
 
 // ── Ranking logic ─────────────────────────────────────────────────────────────
-// THRESHOLD: officer must be required for >= 30% of total meetings to be ranked
 const RANK_THRESHOLD = 0.30;
 
 function computeRankings(officers, allAttendance) {
@@ -470,33 +527,50 @@ function openOfficerProfile(officerId) {
   const o             = allData.find(d => d.id === officerId);
   if (!o) return;
   const allAttendance = allData.filter(d => d.type === 'attendance');
-  const meetings      = getMeetings();
-  const { rankedList, unrankedList, threshold, totalMeetings } = computeRankings(getOfficers(), allAttendance);
+  const isCore        = (o.role || 'core') === 'core';
 
-  const stat       = [...rankedList, ...unrankedList].find(s => s.o.id === officerId);
-  const rankIndex  = rankedList.findIndex(s => s.o.id === officerId);
-  const isRanked   = rankIndex !== -1;
-  const pct        = stat ? Math.round(stat.rate * 100) : 0;
+  // Determine which pool to rank within
+  const pool = isCore ? getCoreOfficers() : getCommitteeMembers().filter(m => (m.committee||'') === (o.committee||''));
+  const { rankedList, unrankedList, threshold, totalMeetings } = computeRankings(pool, allAttendance);
 
-  // Populate header
-  document.getElementById('op-avatar').src      = avatar(o);
-  document.getElementById('op-name').textContent = o.name;
+  const stat      = [...rankedList, ...unrankedList].find(s => s.o.id === officerId);
+  const rankIndex = rankedList.findIndex(s => s.o.id === officerId);
+  const isRanked  = rankIndex !== -1;
+  const pct       = stat ? Math.round(stat.rate * 100) : 0;
+
+  // Header
+  document.getElementById('op-avatar').src            = avatar(o);
+  document.getElementById('op-name').textContent      = o.name;
   document.getElementById('op-position').textContent  = o.position || '';
   document.getElementById('op-committee').textContent = o.committee ? o.committee : '';
+
+  // Role badge
+  const roleBadge = document.getElementById('op-role-badge');
+  if (isCore) {
+    roleBadge.textContent = '⭐ Core Officer';
+    roleBadge.className   = 'inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-pink-100 text-pink-700';
+  } else {
+    roleBadge.textContent = '👥 Committee Member';
+    roleBadge.className   = 'inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700';
+  }
 
   // Stats strip
   document.getElementById('op-rate').textContent     = stat ? pct + '%' : '—';
   document.getElementById('op-present').textContent  = stat ? stat.present : 0;
   document.getElementById('op-required').textContent = stat ? stat.required : 0;
 
+  // Rank label
+  const rankLabelEl = document.getElementById('op-rank-label');
+  rankLabelEl.textContent = isCore ? 'Core Officers Rank' : `Rank in ${o.committee || 'Committee'}`;
+
   // Rank badge
-  const badge    = document.getElementById('op-rank-badge');
-  const rankRow  = document.getElementById('op-rank-row');
+  const badge   = document.getElementById('op-rank-badge');
+  const rankRow = document.getElementById('op-rank-row');
   if (isRanked) {
     const medal = rankIndex === 0 ? '🥇 #1' : rankIndex === 1 ? '🥈 #2' : rankIndex === 2 ? '🥉 #3' : `#${rankIndex + 1}`;
-    badge.textContent  = medal;
+    badge.textContent = medal;
     const cls = rankIndex === 0 ? 'rank-1' : rankIndex === 1 ? 'rank-2' : rankIndex === 2 ? 'rank-3' : 'rank-other';
-    badge.className    = `text-sm font-bold px-3 py-1 rounded-full ${cls}`;
+    badge.className   = `text-sm font-bold px-3 py-1 rounded-full ${cls}`;
     rankRow.classList.remove('hidden');
   } else {
     rankRow.classList.add('hidden');
@@ -523,7 +597,7 @@ function openOfficerProfile(officerId) {
     thresholdEl.classList.add('hidden');
   }
 
-  // Meeting history — build once from allData
+  // Meeting history
   const officerRecords = allAttendance.filter(a => a.officer_id === officerId);
   const historyEl      = document.getElementById('op-meeting-history');
   const noHistoryEl    = document.getElementById('op-no-history');
@@ -533,7 +607,6 @@ function openOfficerProfile(officerId) {
     noHistoryEl.classList.remove('hidden');
   } else {
     noHistoryEl.classList.add('hidden');
-    // Sort by date desc
     const sorted = officerRecords.slice().sort((a, b) => b.meeting_date?.localeCompare(a.meeting_date));
     historyEl.innerHTML = sorted.map(r => {
       const icon  = r.status === 'present'
@@ -569,7 +642,7 @@ function renderDashboard() {
 
   const totalPresent  = allAttendance.filter(a => a.status === 'present').length;
   const totalRequired = allAttendance.length;
-  const avgRate = totalRequired ? Math.round(totalPresent / totalRequired * 100) : 0;
+  const avgRate       = totalRequired ? Math.round(totalPresent / totalRequired * 100) : 0;
   document.getElementById('stat-attendance-rate').textContent = avgRate + '%';
 
   const list = document.getElementById('officer-summary-list');
@@ -578,18 +651,16 @@ function renderDashboard() {
   if (!officers.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
   noEl.style.display = 'none';
 
-  const { rankedList, unrankedList, threshold, totalMeetings } = computeRankings(officers, allAttendance);
-  const topRate  = rankedList.length ? rankedList[0].rate : 1;
-
   const medalIcon    = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
   const rankBadgeCls = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
   const rateColor    = pct => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
 
-  const renderRow = (s, i, isRanked) => {
+  const renderRow = (s, i, isRanked, topRate) => {
     const pct      = Math.round(s.rate * 100);
     const barWidth = topRate > 0 && isRanked ? Math.round((s.rate / topRate) * 100) : pct;
     const medal    = isRanked ? medalIcon(i) : null;
     const noData   = s.required === 0;
+    const isCore   = (s.o.role || 'core') === 'core';
 
     return `<div class="bg-white rounded-xl p-3 shadow-sm flex items-center gap-3">
       <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isRanked ? rankBadgeCls(i) : 'bg-gray-100 text-gray-400'}">
@@ -605,8 +676,8 @@ function renderDashboard() {
                <div class="h-full bg-pink-400 rounded-full bar-fill" style="width:${barWidth}%"></div>
              </div>`
         }
-        ${!isRanked && totalMeetings > 0
-          ? `<p class="text-[10px] text-amber-500 mt-0.5">${s.required}/${threshold} required meetings to rank</p>`
+        ${!isRanked && s.totalMeetings > 0
+          ? `<p class="text-[10px] text-amber-500 mt-0.5">${s.required}/${s.threshold} required meetings to rank</p>`
           : ''}
       </div>
       <div class="text-right flex-shrink-0 ml-1">
@@ -620,16 +691,91 @@ function renderDashboard() {
     </div>`;
   };
 
-  let html = rankedList.map((s, i) => renderRow(s, i, true)).join('');
+  let html = '';
 
-  if (unrankedList.length) {
-    html += `<div class="unranked-section">
-      <p class="text-xs text-gray-400 font-medium mb-2 px-1">Unranked — below 30% threshold</p>
-      ${unrankedList.map((s, i) => renderRow(s, i, false)).join('')}
+  // ── Core Officers leaderboard ──────────────────────────────────────────────
+  const coreOfficers = getCoreOfficers();
+  if (coreOfficers.length) {
+    const { rankedList: coreRanked, unrankedList: coreUnranked } = computeRankings(coreOfficers, allAttendance);
+    const coreTopRate = coreRanked.length ? coreRanked[0].rate : 1;
+    html += `<div class="mb-4">
+      <div class="section-header">
+        <span class="section-header-label text-pink-500">⭐ Core Officers</span>
+        <div class="section-header-line"></div>
+      </div>
+      <div class="space-y-2">
+        ${coreRanked.map((s, i) => renderRow(s, i, true, coreTopRate)).join('')}
+      </div>`;
+    if (coreUnranked.length) {
+      html += `<div class="unranked-section space-y-2">
+        <p class="text-xs text-gray-400 font-medium mb-2 px-1">Unranked — below 30% threshold</p>
+        ${coreUnranked.map((s, i) => renderRow(s, i, false, 1)).join('')}
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  // ── Committee Members — per committee ──────────────────────────────────────
+  const members = getCommitteeMembers();
+  if (members.length) {
+    // Group by committee
+    const committeeMap = new Map();
+    for (const o of members) {
+      const key = (o.committee||'').trim() || 'General';
+      if (!committeeMap.has(key)) committeeMap.set(key, []);
+      committeeMap.get(key).push(o);
+    }
+    const sortedCommittees = [...committeeMap.keys()].sort((a,b) => {
+      if (a==='General') return 1; if (b==='General') return -1; return a.localeCompare(b);
+    });
+
+    html += `<div class="section-header mt-2">
+      <span class="section-header-label text-violet-500">👥 Committee Rankings</span>
+      <div class="section-header-line" style="background:#e9d5ff"></div>
     </div>`;
+
+    for (const committee of sortedCommittees) {
+      const group = committeeMap.get(committee);
+      const { rankedList, unrankedList } = computeRankings(group, allAttendance);
+      const topRate = rankedList.length ? rankedList[0].rate : 1;
+
+      html += `<div class="mb-4">
+        <div class="flex items-center gap-2 mb-2 px-1">
+          <span class="text-xs font-semibold text-violet-500 uppercase tracking-wider">${esc(committee)}</span>
+          <div class="flex-1 h-px bg-violet-100"></div>
+        </div>
+        <div class="space-y-2">
+          ${rankedList.map((s, i) => renderRow(s, i, true, topRate)).join('')}
+        </div>`;
+      if (unrankedList.length) {
+        html += `<div class="unranked-section space-y-2">
+          <p class="text-xs text-gray-400 font-medium mb-2 px-1">Unranked — below 30% threshold</p>
+          ${unrankedList.map((s, i) => renderRow(s, i, false, 1)).join('')}
+        </div>`;
+      }
+      html += `</div>`;
+    }
+  }
+
+  if (!html) {
+    noEl.style.display = '';
+    list.innerHTML = '';
+    return;
   }
 
   list.innerHTML = html;
+}
+
+// ── Role selector (officer form) ─────────────────────────────────────────────
+function setRole(role) {
+  pendingRole = role;
+  const coreBtn   = document.getElementById('role-btn-core');
+  const memberBtn = document.getElementById('role-btn-member');
+  const wrapper   = document.getElementById('committee-field-wrapper');
+  coreBtn.className   = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role === 'core'   ? 'selected-core'   : 'text-gray-500');
+  memberBtn.className = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role === 'member' ? 'selected-member' : 'text-gray-500');
+  // Committee field is useful for both but optional for core
+  wrapper.style.opacity = role === 'core' ? '0.6' : '1';
 }
 
 // ── Officers ──────────────────────────────────────────────────────────────────
@@ -644,25 +790,53 @@ function renderOfficers() {
   const noEl = document.getElementById('no-officers');
   if (!officers.length) { body.innerHTML = ''; noEl.classList.remove('hidden'); return; }
   noEl.classList.add('hidden');
-  const groups = groupByCommittee(officers);
-  body.innerHTML = groups.map(({ label, members }) => `
-    <div class="mb-6">
-      <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
+
+  // Separate core and committee members
+  const core    = officers.filter(o => (o.role || 'core') === 'core');
+  const members = officers.filter(o => o.role === 'member');
+
+  let html = '';
+
+  if (core.length) {
+    html += `<div class="mb-6">
+      <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">⭐ Core Officers</h3>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        ${members.map(o => `
-          <div class="bg-white rounded-xl p-3 shadow-sm text-center relative group cursor-pointer hover:ring-2 hover:ring-pink-200 transition"
-               onclick="openOfficerProfile('${o.id}')">
-            <img src="${avatar(o)}" class="w-16 h-16 mx-auto rounded-full object-cover mb-2">
-            <p class="text-sm font-semibold text-gray-800 truncate">${esc(o.name)}</p>
-            <p class="text-xs text-gray-400">${esc(o.position)}</p>
-            <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition" onclick="event.stopPropagation()">
-              <button onclick="editOfficer('${o.id}')"   class="text-gray-400 hover:text-pink-500"><i data-lucide="edit"    class="w-3.5 h-3.5"></i></button>
-              <button onclick="deleteOfficer('${o.id}')" class="text-gray-400 hover:text-red-500"> <i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-            </div>
-          </div>`).join('')}
+        ${core.map(o => officerCard(o)).join('')}
       </div>
-    </div>`).join('');
+    </div>`;
+  }
+
+  if (members.length) {
+    const groups = groupByCommittee(members);
+    html += groups.map(({ label, members: m }) => `
+      <div class="mb-6">
+        <h3 class="text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2 px-1">👥 ${esc(label)}</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          ${m.map(o => officerCard(o)).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  body.innerHTML = html;
   lucide.createIcons();
+}
+
+function officerCard(o) {
+  const isCore = (o.role || 'core') === 'core';
+  const badge  = isCore
+    ? `<span class="text-[9px] font-semibold text-pink-500 bg-pink-50 px-1.5 py-0.5 rounded-full mt-0.5 inline-block">Core</span>`
+    : `<span class="text-[9px] font-semibold text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-full mt-0.5 inline-block">Member</span>`;
+  return `<div class="bg-white rounded-xl p-3 shadow-sm text-center relative group cursor-pointer hover:ring-2 hover:ring-pink-200 transition"
+               onclick="openOfficerProfile('${o.id}')">
+    <img src="${avatar(o)}" class="w-16 h-16 mx-auto rounded-full object-cover mb-2">
+    <p class="text-sm font-semibold text-gray-800 truncate">${esc(o.name)}</p>
+    <p class="text-xs text-gray-400">${esc(o.position)}</p>
+    ${badge}
+    <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition" onclick="event.stopPropagation()">
+      <button onclick="editOfficer('${o.id}')"   class="text-gray-400 hover:text-pink-500"><i data-lucide="edit"    class="w-3.5 h-3.5"></i></button>
+      <button onclick="deleteOfficer('${o.id}')" class="text-gray-400 hover:text-red-500"> <i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+    </div>
+  </div>`;
 }
 
 function groupByCommittee(officers) {
@@ -709,6 +883,12 @@ function showOfficerForm(id) {
   document.getElementById('of-name').value      = o ? o.name            : '';
   document.getElementById('of-position').value  = o ? o.position        : '';
   document.getElementById('of-committee').value = o ? (o.committee||'') : '';
+
+  // Set role
+  const role = o ? (o.role || 'core') : 'core';
+  pendingRole = role;
+  setRole(role);
+
   const preview = document.getElementById('of-photo-preview');
   const btn     = document.getElementById('of-photo-btn');
   if (o && o.photo) {
@@ -726,12 +906,13 @@ async function saveOfficer() {
   const position  = document.getElementById('of-position').value.trim();
   const committee = document.getElementById('of-committee').value.trim();
   const photo     = pendingPhotoB64 || '';
+  const role      = pendingRole || 'core';
   if (!name || !position) { alert('Name and position are required.'); return; }
   if (editingOfficerId) {
     const idx = allData.findIndex(d => d.id === editingOfficerId);
-    if (idx !== -1) { Object.assign(allData[idx], { name, position, committee, photo }); await persistSave(allData[idx]); }
+    if (idx !== -1) { Object.assign(allData[idx], { name, position, committee, photo, role }); await persistSave(allData[idx]); }
   } else {
-    const item = { type:'officer', id:genId(), name, position, committee, photo };
+    const item = { type:'officer', id:genId(), name, position, committee, photo, role };
     allData.push(item); await persistSave(item);
   }
   hideOfficerForm(); renderAll();
@@ -848,7 +1029,6 @@ function renderAttendance() {
     (o.position ||'').toLowerCase().includes(q)
   );
 
-  // Count from cache
   let present = 0, absent = 0;
   const allOfficers = getOfficers();
   for (const o of allOfficers) {
@@ -860,60 +1040,75 @@ function renderAttendance() {
   document.getElementById('att-absent').textContent  = absent;
   document.getElementById('att-none').textContent    = allOfficers.length - present - absent;
 
-  const groups = groupByCommittee(officers);
-  document.getElementById('attendance-body').innerHTML = groups.map(({ label, members }) => `
-    <div class="mb-6">
-      <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">${esc(label)}</h3>
+  // Split for attendance display
+  const coreGroup    = officers.filter(o => (o.role || 'core') === 'core');
+  const memberGroups = groupByCommittee(officers.filter(o => o.role === 'member'));
+
+  let html = '';
+
+  if (coreGroup.length) {
+    html += `<div class="mb-6">
+      <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">⭐ Core Officers</h3>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        ${members.map(o => {
-          const cached = _attCache[o.id];
-          const status = cached ? cached.status : 'none';
-          const cardCls = status === 'present' ? 'att-card-present' : status === 'absent' ? 'att-card-absent' : 'att-card-none';
-          const label2  = status === 'present' ? 'Present' : status === 'absent' ? 'Absent' : 'Not required';
-          const color   = status === 'present' ? 'text-green-600' : status === 'absent' ? 'text-red-500' : 'text-gray-400';
-          const hint    = status === 'none' ? 'Click to mark Present' : status === 'present' ? 'Click to mark Absent' : 'Click to remove from meeting';
-          return `<div id="att-card-${o.id}" class="bg-white rounded-xl p-3 shadow-sm text-center att-card ${cardCls} cursor-pointer"
-                       onclick="toggleAttendance('${o.id}')" title="${hint}">
-            <img src="${avatar(o)}" class="w-14 h-14 mx-auto rounded-full object-cover mb-2">
-            <p class="text-xs font-semibold text-gray-800 truncate">${esc(o.name)}</p>
-            <span id="att-label-${o.id}" class="text-[10px] font-medium ${color}">${label2}</span>
-          </div>`;
-        }).join('')}
+        ${coreGroup.map(o => attCard(o)).join('')}
       </div>
-    </div>`).join('');
+    </div>`;
+  }
+  for (const { label, members } of memberGroups) {
+    html += `<div class="mb-6">
+      <h3 class="text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2 px-1">👥 ${esc(label)}</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        ${members.map(o => attCard(o)).join('')}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('attendance-body').innerHTML = html;
 }
 
-// ── Optimised toggle: update DOM directly, no full re-render ──────────────────
+function attCard(o) {
+  const cached  = _attCache[o.id];
+  const status  = cached ? cached.status : 'none';
+  const cardCls = status === 'present' ? 'att-card-present' : status === 'absent' ? 'att-card-absent' : 'att-card-none';
+  const label   = status === 'present' ? 'Present' : status === 'absent' ? 'Absent' : 'Not required';
+  const color   = status === 'present' ? 'text-green-600' : status === 'absent' ? 'text-red-500' : 'text-gray-400';
+  const hint    = status === 'none' ? 'Click to mark Present' : status === 'present' ? 'Click to mark Absent' : 'Click to remove from meeting';
+  return `<div id="att-card-${o.id}" class="bg-white rounded-xl p-3 shadow-sm text-center att-card ${cardCls} cursor-pointer"
+               onclick="toggleAttendance('${o.id}')" title="${hint}">
+    <img src="${avatar(o)}" class="w-14 h-14 mx-auto rounded-full object-cover mb-2">
+    <p class="text-xs font-semibold text-gray-800 truncate">${esc(o.name)}</p>
+    <span id="att-label-${o.id}" class="text-[10px] font-medium ${color}">${label}</span>
+  </div>`;
+}
+
+// ── Optimised toggle ──────────────────────────────────────────────────────────
 async function toggleAttendance(officerId) {
   if (!currentMeeting) return;
 
-  const cached     = _attCache[officerId];
-  const card       = document.getElementById('att-card-' + officerId);
-  const labelEl    = document.getElementById('att-label-' + officerId);
+  const cached    = _attCache[officerId];
+  const card      = document.getElementById('att-card-' + officerId);
+  const labelEl   = document.getElementById('att-label-' + officerId);
 
-  // Determine next state
   let newStatus, oldRecordId;
   if (!cached) {
     newStatus = 'present';
   } else if (cached.status === 'present') {
-    newStatus    = 'absent';
-    oldRecordId  = cached.id;
+    newStatus   = 'absent';
+    oldRecordId = cached.id;
   } else {
-    newStatus    = 'none';
-    oldRecordId  = cached.id;
+    newStatus   = 'none';
+    oldRecordId = cached.id;
   }
 
-  // ── Update DOM immediately (zero perceived lag) ──
   if (card) {
     card.classList.remove('att-card-present','att-card-absent','att-card-none');
     card.classList.add(newStatus === 'present' ? 'att-card-present' : newStatus === 'absent' ? 'att-card-absent' : 'att-card-none');
   }
   if (labelEl) {
-    labelEl.textContent  = newStatus === 'present' ? 'Present' : newStatus === 'absent' ? 'Absent' : 'Not required';
-    labelEl.className    = `text-[10px] font-medium ${newStatus === 'present' ? 'text-green-600' : newStatus === 'absent' ? 'text-red-500' : 'text-gray-400'}`;
+    labelEl.textContent = newStatus === 'present' ? 'Present' : newStatus === 'absent' ? 'Absent' : 'Not required';
+    labelEl.className   = `text-[10px] font-medium ${newStatus === 'present' ? 'text-green-600' : newStatus === 'absent' ? 'text-red-500' : 'text-gray-400'}`;
   }
 
-  // ── Update counter display ──
   const prevStatus = cached ? cached.status : 'none';
   const pEl = document.getElementById('att-present');
   const aEl = document.getElementById('att-absent');
@@ -923,7 +1118,6 @@ async function toggleAttendance(officerId) {
   if (newStatus  === 'present') p++; else if (newStatus  === 'absent') a++; else n++;
   pEl.textContent = p; aEl.textContent = a; nEl.textContent = n;
 
-  // ── Persist & update allData + cache in background ──
   if (newStatus === 'present') {
     const item = { type:'attendance', id:genId(),
       meeting_title: currentMeeting.meeting_title, meeting_date: currentMeeting.meeting_date,
@@ -970,7 +1164,6 @@ function renderAll() {
   if (currentMeeting) { buildAttCache(); renderAttendance(); }
 }
 
-// Don't call renderAll() here — register.js calls it after data loads
 lucide.createIcons();
   </script>
 
