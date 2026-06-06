@@ -160,14 +160,13 @@
     /* ── Splash / auth-check screen ── */
     #splash-screen {
       position: fixed; inset: 0; background: #fdf2f8;
-      display: flex; flex-direction: column;
+      flex-direction: column;
       align-items: center; justify-content: center;
       z-index: 99999;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
+      transition: opacity 0.5s ease;
     }
     #splash-screen.hide {
       opacity: 0;
-      visibility: hidden;
       pointer-events: none;
     }
     .splash-logo {
@@ -554,58 +553,52 @@
   </div><!-- end app-content -->
 
   <script>
-// ── Splash screen helpers ─────────────────────────────────────────────────────
-// Strategy: check localStorage for ANY firebase session key.
-// Firebase uses keys like: firebase:authUser:<apiKey>:[DEFAULT]
-// If found → user was previously logged in → show splash, hide login.
-// If not found → brand new / logged-out user → skip splash, show login immediately.
-(function() {
-  var hasSession = false;
-  try {
-    hasSession = Object.keys(localStorage).some(function(k) {
-      return k.indexOf('firebase:authUser') === 0;
-    });
-  } catch(e) {}
+// ── Splash / auth state ─────────────────────────────────────────────────────
+// Both splash and auth-screen start as display:none in HTML.
+// This runs synchronously and immediately decides which to show.
+// No IIFE timing issues — we set display directly, not via class toggling.
+var _hasFirebaseSession = false;
+try {
+  _hasFirebaseSession = Object.keys(localStorage).some(function(k) {
+    return k.startsWith('firebase:authUser');
+  });
+} catch(e) {}
 
-  var splash = document.getElementById('splash-screen');
-  var auth   = document.getElementById('auth-screen');
+if (_hasFirebaseSession) {
+  // Returning user — show splash, keep login hidden
+  document.getElementById('splash-screen').style.display = 'flex';
+} else {
+  // New/logged-out user — show login immediately, no splash
+  document.getElementById('auth-screen').style.display = 'flex';
+}
 
-  if (hasSession) {
-    if (splash) splash.style.display = 'flex';
-    if (auth)   auth.style.display   = 'none';
-  } else {
-    if (splash) splash.style.display = 'none';
-    if (auth)   auth.style.display   = 'flex';
-  }
-})();
-
-// Called by register.js inside onAuthStateChanged.
-//   window.resolveSplash(true)  → user is logged in  → hide splash, app already shown by register.js
-//   window.resolveSplash(false) → user is logged out → hide splash, show login form
+// Called by register.js inside onAuthStateChanged(auth, user => { ... })
+//   window.resolveSplash(true)  — Firebase confirmed logged in
+//   window.resolveSplash(false) — Firebase confirmed logged out
 window.resolveSplash = function(isLoggedIn) {
   var splash = document.getElementById('splash-screen');
   var auth   = document.getElementById('auth-screen');
   var app    = document.getElementById('app-content');
 
-  if (splash) splash.classList.add('hide');
+  // Fade out splash then hide it
+  splash.style.opacity = '0';
+  setTimeout(function() { splash.style.display = 'none'; }, 500);
 
   if (isLoggedIn) {
-    if (auth) auth.style.display = 'none';
-    // app-content is shown by register.js — nothing extra needed here
+    auth.style.display = 'none';
+    // register.js already sets app-content to display:block
   } else {
-    if (auth) auth.style.display = 'flex';
-    if (app)  app.style.display  = 'none';
+    auth.style.display = 'flex';
+    if (app) app.style.display = 'none';
   }
 };
 
-// Safety net: if register.js never calls resolveSplash within 8s (slow network),
-// dismiss the splash and fall back to showing the login screen.
+// Safety fallback — if register.js never calls resolveSplash (e.g. slow network)
+// dismiss the splash after 8s and show the login form
 setTimeout(function() {
   var splash = document.getElementById('splash-screen');
-  if (splash && !splash.classList.contains('hide')) {
-    splash.classList.add('hide');
-    var auth = document.getElementById('auth-screen');
-    if (auth) auth.style.display = 'flex';
+  if (splash && splash.style.display !== 'none') {
+    window.resolveSplash(false);
   }
 }, 8000);
 
