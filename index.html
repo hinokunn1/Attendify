@@ -50,20 +50,79 @@
 
     .bar-fill { transition: width 0.6s cubic-bezier(.4,0,.2,1); }
 
-    .unranked-section { border-top:2px dashed #fbcfe8; padding-top:12px; margin-top:8px; }
+    /* ── Section blocks ── */
+    .core-block {
+      background: linear-gradient(135deg, #fff0f7 0%, #fdf2f8 100%);
+      border: 1.5px solid #f9a8d4;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .core-block-header {
+      display:flex; align-items:center; gap:8px; margin-bottom:12px;
+    }
+    .core-block-title {
+      font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#be185d;
+    }
+    .core-block-pill {
+      background:#fce7f3; color:#be185d; font-size:10px; font-weight:700;
+      padding:2px 8px; border-radius:999px; border:1px solid #fbcfe8;
+    }
 
-    /* Section headers in dashboard */
-    .section-header {
-      display:flex; align-items:center; gap:8px;
-      margin-top:20px; margin-bottom:10px;
+    .committee-block {
+      background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%);
+      border: 1.5px solid #c4b5fd;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
     }
-    .section-header-label {
-      font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    .committee-outer-header {
+      display:flex; align-items:center; gap:8px; margin-bottom:14px;
     }
-    .section-header-line {
-      flex:1; height:1px; background:#fbcfe8;
+    .committee-outer-title {
+      font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#6d28d9;
     }
-    .core-section-header { background:linear-gradient(90deg,#fdf2f8,transparent); border-radius:8px; padding:6px 10px; margin-bottom:8px; }
+
+    .committee-sub {
+      background: white;
+      border: 1px solid #e9d5ff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .committee-sub:last-child { margin-bottom:0; }
+    .committee-sub-title {
+      font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+      color:#7c3aed; margin-bottom:8px; display:flex; align-items:center; gap:6px;
+    }
+    .committee-sub-title::after {
+      content:''; flex:1; height:1px; background:#ede9fe;
+    }
+
+    /* Rank row card — core */
+    .rank-row-core {
+      background: white;
+      border: 1px solid #fbcfe8;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .rank-row-core:last-child { margin-bottom:0; }
+
+    /* Rank row card — committee */
+    .rank-row-committee {
+      background: white;
+      border: 1px solid #ede9fe;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .rank-row-committee:last-child { margin-bottom:0; }
+
+    .unranked-section { border-top:2px dashed #fbcfe8; padding-top:10px; margin-top:8px; }
+    .unranked-section-violet { border-top:2px dashed #e9d5ff; padding-top:10px; margin-top:8px; }
 
     /* Info modal animation */
     #ranking-modal { transition: opacity .2s; }
@@ -83,6 +142,10 @@
     .role-btn { transition: all .15s; border:2px solid #fbcfe8; }
     .role-btn.selected-core { border-color:#ec4899; background:#fdf2f8; color:#be185d; font-weight:600; }
     .role-btn.selected-member { border-color:#a78bfa; background:#f5f3ff; color:#6d28d9; font-weight:600; }
+
+    /* Logo area */
+    .logo-img { height:32px; max-width:140px; object-fit:contain; cursor:pointer; }
+    .logo-upload-btn { font-size:11px; color:#db2777; cursor:pointer; text-decoration:underline; }
   </style>
 </head>
 
@@ -104,7 +167,12 @@
 
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <h1 class="text-xl font-bold text-pink-600">Attendify</h1>
+        <!-- Logo area: click to upload a logo image -->
+        <div class="flex items-center gap-2">
+          <img id="header-logo-img" class="logo-img hidden" onclick="document.getElementById('logo-file-input').click()" title="Click to change logo">
+          <h1 id="header-logo-text" class="text-xl font-bold text-pink-600 cursor-pointer" onclick="document.getElementById('logo-file-input').click()" title="Click to upload a logo">Attendify</h1>
+          <input type="file" id="logo-file-input" accept="image/*" class="hidden" onchange="handleLogoFile(event)">
+        </div>
         <button onclick="logoutUser()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs">Logout</button>
       </div>
       <nav class="max-w-4xl mx-auto flex border-t">
@@ -378,6 +446,9 @@
           <button onclick="closeOfficerProfile()" class="absolute top-4 right-4 text-white/70 hover:text-white">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
+          <button onclick="editFromProfile()" class="absolute top-4 right-11 text-white/70 hover:text-white" title="Edit officer">
+            <i data-lucide="edit" class="w-4 h-4"></i>
+          </button>
           <div class="flex items-center gap-4">
             <img id="op-avatar" src="" class="w-16 h-16 rounded-full object-cover border-2 border-white/50 flex-shrink-0">
             <div>
@@ -625,10 +696,19 @@ function openOfficerProfile(officerId) {
   }
 
   document.getElementById('officer-profile-modal').classList.remove('hidden');
+  document.getElementById('officer-profile-modal').dataset.officerId = officerId;
   lucide.createIcons();
 }
 function closeOfficerProfile() {
   document.getElementById('officer-profile-modal').classList.add('hidden');
+}
+function editFromProfile() {
+  // Get the officer id from the current profile. We track it via a data attribute.
+  const modal = document.getElementById('officer-profile-modal');
+  const id = modal.dataset.officerId;
+  closeOfficerProfile();
+  switchTab('officers');
+  setTimeout(() => { showOfficerForm(id); }, 80);
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -655,15 +735,17 @@ function renderDashboard() {
   const rankBadgeCls = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
   const rateColor    = pct => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
 
-  const renderRow = (s, i, isRanked, topRate) => {
+  // rowClass: 'rank-row-core' | 'rank-row-committee'
+  // barColor: tailwind bg class
+  const renderRow = (s, i, isRanked, topRate, rowClass, barColor) => {
     const pct      = Math.round(s.rate * 100);
     const barWidth = topRate > 0 && isRanked ? Math.round((s.rate / topRate) * 100) : pct;
     const medal    = isRanked ? medalIcon(i) : null;
     const noData   = s.required === 0;
-    const isCore   = (s.o.role || 'core') === 'core';
+    const bar      = barColor || 'bg-pink-400';
 
-    return `<div class="bg-white rounded-xl p-3 shadow-sm flex items-center gap-3">
-      <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isRanked ? rankBadgeCls(i) : 'bg-gray-100 text-gray-400'}">
+    return `<div class="${rowClass}">
+      <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isRanked ? rankBadgeCls(i) : 'bg-gray-100 text-gray-400'}">
         ${isRanked ? (medal ? medal : (i + 1)) : '—'}
       </div>
       <img src="${avatar(s.o)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
@@ -672,8 +754,8 @@ function renderDashboard() {
         <p class="text-xs text-gray-400 truncate">${esc(s.o.position)}${s.o.committee ? ' · ' + esc(s.o.committee) : ''}</p>
         ${noData
           ? `<p class="text-[10px] text-gray-300 mt-1">No required meetings yet</p>`
-          : `<div class="mt-1.5 h-1.5 bg-pink-100 rounded-full overflow-hidden">
-               <div class="h-full bg-pink-400 rounded-full bar-fill" style="width:${barWidth}%"></div>
+          : `<div class="mt-1.5 h-1.5 rounded-full overflow-hidden" style="background:rgba(0,0,0,0.07)">
+               <div class="h-full ${bar} rounded-full bar-fill" style="width:${barWidth}%"></div>
              </div>`
         }
         ${!isRanked && s.totalMeetings > 0
@@ -693,32 +775,30 @@ function renderDashboard() {
 
   let html = '';
 
-  // ── Core Officers leaderboard ──────────────────────────────────────────────
+  // ── Core Officers block ────────────────────────────────────────────────────
   const coreOfficers = getCoreOfficers();
   if (coreOfficers.length) {
     const { rankedList: coreRanked, unrankedList: coreUnranked } = computeRankings(coreOfficers, allAttendance);
     const coreTopRate = coreRanked.length ? coreRanked[0].rate : 1;
-    html += `<div class="mb-4">
-      <div class="section-header">
-        <span class="section-header-label text-pink-500">⭐ Core Officers</span>
-        <div class="section-header-line"></div>
+    html += `<div class="core-block">
+      <div class="core-block-header">
+        <span style="font-size:16px;">⭐</span>
+        <span class="core-block-title">Core Officers</span>
+        <span class="core-block-pill">${coreOfficers.length} officer${coreOfficers.length !== 1 ? 's' : ''}</span>
       </div>
-      <div class="space-y-2">
-        ${coreRanked.map((s, i) => renderRow(s, i, true, coreTopRate)).join('')}
-      </div>`;
+      ${coreRanked.map((s, i) => renderRow(s, i, true, coreTopRate, 'rank-row-core', 'bg-pink-400')).join('')}`;
     if (coreUnranked.length) {
-      html += `<div class="unranked-section space-y-2">
-        <p class="text-xs text-gray-400 font-medium mb-2 px-1">Unranked — below 30% threshold</p>
-        ${coreUnranked.map((s, i) => renderRow(s, i, false, 1)).join('')}
+      html += `<div class="unranked-section">
+        <p class="text-[10px] text-gray-400 font-semibold mb-2 uppercase tracking-wide">Unranked · below 30% threshold</p>
+        ${coreUnranked.map((s, i) => renderRow(s, i, false, 1, 'rank-row-core', 'bg-pink-300')).join('')}
       </div>`;
     }
     html += `</div>`;
   }
 
-  // ── Committee Members — per committee ──────────────────────────────────────
+  // ── Committee Members block ────────────────────────────────────────────────
   const members = getCommitteeMembers();
   if (members.length) {
-    // Group by committee
     const committeeMap = new Map();
     for (const o of members) {
       const key = (o.committee||'').trim() || 'General';
@@ -729,32 +809,30 @@ function renderDashboard() {
       if (a==='General') return 1; if (b==='General') return -1; return a.localeCompare(b);
     });
 
-    html += `<div class="section-header mt-2">
-      <span class="section-header-label text-violet-500">👥 Committee Rankings</span>
-      <div class="section-header-line" style="background:#e9d5ff"></div>
-    </div>`;
+    html += `<div class="committee-block">
+      <div class="committee-outer-header">
+        <span style="font-size:16px;">👥</span>
+        <span class="committee-outer-title">Committee Rankings</span>
+        <span style="background:#ede9fe;color:#6d28d9;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #ddd6fe;">${members.length} member${members.length !== 1 ? 's' : ''}</span>
+      </div>`;
 
     for (const committee of sortedCommittees) {
       const group = committeeMap.get(committee);
       const { rankedList, unrankedList } = computeRankings(group, allAttendance);
       const topRate = rankedList.length ? rankedList[0].rate : 1;
 
-      html += `<div class="mb-4">
-        <div class="flex items-center gap-2 mb-2 px-1">
-          <span class="text-xs font-semibold text-violet-500 uppercase tracking-wider">${esc(committee)}</span>
-          <div class="flex-1 h-px bg-violet-100"></div>
-        </div>
-        <div class="space-y-2">
-          ${rankedList.map((s, i) => renderRow(s, i, true, topRate)).join('')}
-        </div>`;
+      html += `<div class="committee-sub">
+        <div class="committee-sub-title">${esc(committee)}</div>
+        ${rankedList.map((s, i) => renderRow(s, i, true, topRate, 'rank-row-committee', 'bg-violet-400')).join('')}`;
       if (unrankedList.length) {
-        html += `<div class="unranked-section space-y-2">
-          <p class="text-xs text-gray-400 font-medium mb-2 px-1">Unranked — below 30% threshold</p>
-          ${unrankedList.map((s, i) => renderRow(s, i, false, 1)).join('')}
+        html += `<div class="unranked-section-violet">
+          <p class="text-[10px] text-gray-400 font-semibold mb-2 uppercase tracking-wide">Unranked · below 30% threshold</p>
+          ${unrankedList.map((s, i) => renderRow(s, i, false, 1, 'rank-row-committee', 'bg-violet-300')).join('')}
         </div>`;
       }
       html += `</div>`;
     }
+    html += `</div>`;
   }
 
   if (!html) {
@@ -852,7 +930,30 @@ function groupByCommittee(officers) {
   return keys.map(k => ({ label:k, members:map.get(k) }));
 }
 
-// ── Photo handling ────────────────────────────────────────────────────────────
+// ── Logo handling ─────────────────────────────────────────────────────────────
+function handleLogoFile(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const src = ev.target.result;
+    localStorage.setItem('attendify_logo', src);
+    applyLogo(src);
+  };
+  reader.readAsDataURL(file); e.target.value = '';
+}
+function applyLogo(src) {
+  const img  = document.getElementById('header-logo-img');
+  const text = document.getElementById('header-logo-text');
+  img.src = src; img.classList.remove('hidden');
+  text.classList.add('hidden');
+}
+function loadSavedLogo() {
+  const saved = localStorage.getItem('attendify_logo');
+  if (saved) applyLogo(saved);
+}
+loadSavedLogo();
+
+// ── Photo handling ─────────────────────────────────────────────────────────────
 function handlePhotoFile(e) {
   const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
