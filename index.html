@@ -109,26 +109,20 @@
     }
     @keyframes sheetUp { from { opacity:0; transform:translateY(24px) scale(.97); } to { opacity:1; transform:none; } }
 
-    /* Info modal */
     #ranking-modal { transition: opacity .2s; }
     #ranking-modal.hidden { opacity:0; pointer-events:none; }
-
-    /* Officer profile modal */
     #officer-profile-modal { transition: opacity .2s; }
     #officer-profile-modal.hidden { opacity:0; pointer-events:none; }
 
-    /* Attendance card */
     .att-card { transition: box-shadow .1s, opacity .1s; }
     .att-card-present { box-shadow: 0 0 0 4px #4ade80; opacity:1; }
     .att-card-absent  { box-shadow: 0 0 0 4px #fca5a5; opacity:1; }
     .att-card-none    { opacity:.5; }
 
-    /* Role toggle */
     .role-btn { transition:all .15s; border:2px solid #fbcfe8; }
     .role-btn.selected-core   { border-color:#ec4899; background:#fdf2f8; color:#be185d; font-weight:600; }
     .role-btn.selected-member { border-color:#a78bfa; background:#f5f3ff; color:#6d28d9; font-weight:600; }
 
-    /* Icon buttons */
     .icon-btn-edit {
       width:24px; height:24px; display:flex; align-items:center; justify-content:center;
       border-radius:50%; background:#fdf2f8; color:#f472b6; border:none; cursor:pointer;
@@ -167,9 +161,9 @@
     <img src="logo.png" alt="Attendify" class="splash-logo">
     <div class="splash-dots"><span></span><span></span><span></span></div>
     <p class="splash-label">Checking login…</p>
-<p style="position:absolute; bottom:28px; font-size:11px; color:#f9a8d4; font-family:'DM Sans',sans-serif;">
-  Built with ❤️ by Hezron Sison
-</p>
+    <p style="position:absolute; bottom:28px; font-size:11px; color:#f9a8d4; font-family:'DM Sans',sans-serif;">
+      Built with ❤️ by Hezron Sison
+    </p>
   </div>
 
   <!-- LOGIN -->
@@ -198,12 +192,11 @@
       </nav>
     </header>
 
-    <!-- hidden file input -->
     <input type="file" id="photo-file-input" accept="image/*" class="hidden" onchange="handlePhotoFile(event)">
 
     <main class="max-w-4xl mx-auto px-4 py-6">
 
-      <!-- ── Dashboard ── -->
+      <!-- Dashboard -->
       <div id="view-dashboard" class="view active">
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           <div class="bg-white rounded-xl p-4 shadow-sm text-center">
@@ -230,7 +223,7 @@
         <p id="no-summary" class="text-gray-400 text-center py-8 text-sm">No data yet.</p>
       </div>
 
-      <!-- ── Officers ── -->
+      <!-- Officers -->
       <div id="view-officers" class="view">
         <div class="flex gap-2 mb-4">
           <input id="officer-search" type="text" placeholder="Search officers…"
@@ -245,7 +238,7 @@
         <p id="no-officers" class="text-gray-400 text-center py-8 text-sm hidden">No officers enrolled yet.</p>
       </div>
 
-      <!-- ── Meetings ── -->
+      <!-- Meetings -->
       <div id="view-meetings" class="view">
         <div class="flex items-center gap-2 mb-4" id="meetings-toolbar">
           <button onclick="showMeetingForm()"
@@ -261,7 +254,6 @@
         <div id="meetings-list" class="space-y-3"></div>
         <p id="no-meetings" class="text-gray-400 text-center py-8 text-sm">No meetings created yet.</p>
 
-        <!-- Attendance sub-view -->
         <div id="attendance-view" class="hidden mt-2">
           <div class="flex items-center gap-2 mb-3">
             <button onclick="closeAttendance()" class="text-pink-500">
@@ -283,11 +275,7 @@
 
     </main>
 
-    <!-- ════════════════════════════════════════════════════
-         MODALS
-    ════════════════════════════════════════════════════ -->
-
-    <!-- ── Delete confirm ── -->
+    <!-- Delete confirm -->
     <div id="confirm-overlay" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-xl p-5 max-w-sm w-full shadow-xl">
         <p id="confirm-msg" class="text-gray-700 text-sm mb-4">Are you sure?</p>
@@ -298,7 +286,7 @@
       </div>
     </div>
 
-    <!-- ── Ranking info ── -->
+    <!-- Ranking info -->
     <div id="ranking-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-xl overflow-y-auto max-h-[90vh]">
         <div class="flex items-center justify-between mb-4">
@@ -358,7 +346,7 @@
       </div>
     </div>
 
-    <!-- ── Officer Profile ── -->
+    <!-- Officer Profile -->
     <div id="officer-profile-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
         <div class="bg-gradient-to-br from-pink-500 to-pink-600 px-5 pt-5 pb-8 relative">
@@ -416,7 +404,7 @@
       </div>
     </div>
 
-    <!-- ── Officer Form Modal ── -->
+    <!-- Officer Form Modal -->
     <div id="officer-form-modal" class="hidden modal-backdrop" onclick="handleOfficerModalBackdrop(event)">
       <div class="modal-sheet p-5" id="officer-form-sheet">
         <div class="flex items-center justify-between mb-4">
@@ -425,8 +413,6 @@
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
-
-        <!-- Photo -->
         <div class="flex items-center gap-4 mb-4">
           <div>
             <img id="of-photo-preview" class="photo-preview hidden">
@@ -440,8 +426,6 @@
             <button type="button" onclick="clearPhoto()" class="text-pink-400 underline mt-1">Remove photo</button>
           </div>
         </div>
-
-        <!-- Role -->
         <div class="mb-3">
           <p class="text-xs text-gray-500 mb-1.5 font-medium">Role</p>
           <div class="flex gap-2">
@@ -449,7 +433,6 @@
             <button type="button" id="role-btn-member" onclick="setRole('member')" class="role-btn flex-1 py-2 rounded-lg text-sm text-gray-500">👥 Committee Member</button>
           </div>
         </div>
-
         <input id="of-name"      type="text" placeholder="Full Name" class="w-full px-3 py-2 border rounded-lg text-sm mb-3">
         <input id="of-position"  type="text" placeholder="Position"  class="w-full px-3 py-2 border rounded-lg text-sm mb-3">
         <div id="committee-field-wrapper" class="mb-4">
@@ -458,15 +441,14 @@
             class="w-full px-3 py-2 border rounded-lg text-sm">
           <datalist id="committee-list"></datalist>
         </div>
-
         <div class="flex gap-2">
-          <button onclick="saveOfficer()"    class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Save</button>
+          <button onclick="saveOfficer()"     class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Save</button>
           <button onclick="hideOfficerForm()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl text-sm">Cancel</button>
         </div>
       </div>
     </div>
 
-    <!-- ── Meeting Form Modal ── -->
+    <!-- Meeting Form Modal -->
     <div id="meeting-form-modal" class="hidden modal-backdrop" onclick="handleMeetingModalBackdrop(event)">
       <div class="modal-sheet p-5" id="meeting-form-sheet">
         <div class="flex items-center justify-between mb-4">
@@ -479,7 +461,7 @@
         <input id="mf-date"  type="date"                             class="w-full px-3 py-2 border rounded-lg text-sm mb-3">
         <textarea id="mf-desc" placeholder="Description (optional)"  class="w-full px-3 py-2 border rounded-lg text-sm mb-4" rows="2"></textarea>
         <div class="flex gap-2">
-          <button onclick="saveMeeting()"    class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Save</button>
+          <button onclick="saveMeeting()"     class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Save</button>
           <button onclick="hideMeetingForm()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl text-sm">Cancel</button>
         </div>
       </div>
@@ -536,7 +518,7 @@ function buildAttCache() {
 }
 
 // ── Firestore wrappers ────────────────────────────────────────────────────────
-async function persistSave(item)   { if (window.currentUserId) await window.fsSaveItem(window.currentUserId, item); }
+async function persistSave(item)     { if (window.currentUserId) await window.fsSaveItem(window.currentUserId, item); }
 async function persistDelete(itemId) { if (window.currentUserId) await window.fsDeleteItem(window.currentUserId, itemId); }
 
 // ── Getters ───────────────────────────────────────────────────────────────────
@@ -606,7 +588,6 @@ function openOfficerProfile(officerId) {
   document.getElementById('op-rate').textContent     = stat ? pct + '%' : '—';
   document.getElementById('op-present').textContent  = stat ? stat.present  : 0;
   document.getElementById('op-required').textContent = stat ? stat.required : 0;
-
   document.getElementById('op-rank-label').textContent = isCore ? 'Core Officers Rank' : `Rank in ${o.committee || 'Committee'}`;
 
   const badge   = document.getElementById('op-rank-badge');
@@ -670,13 +651,11 @@ function editFromProfile() {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 function renderDashboard() {
   const officers      = getOfficers();
-  const meetings      = getMeetings();
   const allAttendance = allData.filter(d => d.type === 'attendance');
-
   document.getElementById('stat-total-officers').textContent = officers.length;
-  document.getElementById('stat-total-meetings').textContent = meetings.length;
-  const totalPresent  = allAttendance.filter(a => a.status==='present').length;
-  const avgRate       = allAttendance.length ? Math.round(totalPresent / allAttendance.length * 100) : 0;
+  document.getElementById('stat-total-meetings').textContent = getMeetings().length;
+  const totalPresent = allAttendance.filter(a => a.status==='present').length;
+  const avgRate      = allAttendance.length ? Math.round(totalPresent / allAttendance.length * 100) : 0;
   document.getElementById('stat-attendance-rate').textContent = avgRate + '%';
 
   const list = document.getElementById('officer-summary-list');
@@ -706,8 +685,7 @@ function renderDashboard() {
           ? `<p class="text-[10px] text-gray-300 mt-1">No required meetings yet</p>`
           : `<div class="mt-1.5 h-1.5 rounded-full overflow-hidden" style="background:rgba(0,0,0,0.07)">
                <div class="h-full ${bar} rounded-full bar-fill" style="width:${barWidth}%"></div>
-             </div>`
-        }
+             </div>`}
         ${!isRanked && s.totalMeetings > 0
           ? `<p class="text-[10px] text-amber-500 mt-0.5">${s.required}/${s.threshold} required meetings to rank</p>`
           : ''}
@@ -717,14 +695,12 @@ function renderDashboard() {
           ? `<p class="text-[10px] text-gray-300 leading-tight">Not in<br>any meeting</p>`
           : `<p class="text-sm font-bold ${rateColor(pct)}">${pct}<span class="text-[10px] font-normal">%</span></p>
              <p class="text-[10px] text-gray-400">${s.present} attended</p>
-             <p class="text-[10px] text-gray-300">${s.required} required</p>`
-        }
+             <p class="text-[10px] text-gray-300">${s.required} required</p>`}
       </div>
     </div>`;
   };
 
   let html = '';
-
   const coreOfficers = getCoreOfficers();
   if (coreOfficers.length) {
     const { rankedList: coreRanked, unrankedList: coreUnranked } = computeRankings(coreOfficers, allAttendance);
@@ -809,7 +785,6 @@ function renderOfficers() {
   const core    = officers.filter(o => (o.role||'core')==='core');
   const members = officers.filter(o => o.role==='member');
   let html = '';
-
   if (core.length) {
     html += `<div class="mb-6">
       <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">⭐ Core Officers</h3>
@@ -856,17 +831,32 @@ function groupByCommittee(officers) {
   return keys.map(k => ({ label:k, members:map.get(k) }));
 }
 
-// ── Photo handling ─────────────────────────────────────────────────────────────
-function handlePhotoFile(e) {
+// ── Photo handling (Cloudinary) ───────────────────────────────────────────────
+async function handlePhotoFile(e) {
   const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    pendingPhotoB64 = ev.target.result;
-    document.getElementById('of-photo-preview').src = pendingPhotoB64;
-    document.getElementById('of-photo-preview').classList.remove('hidden');
-    document.getElementById('of-photo-btn').classList.add('hidden');
-  };
-  reader.readAsDataURL(file); e.target.value = '';
+  e.target.value = '';
+
+  const preview = document.getElementById('of-photo-preview');
+  const btn     = document.getElementById('of-photo-btn');
+
+  // Show local preview immediately while uploading
+  const localUrl = URL.createObjectURL(file);
+  preview.src = localUrl;
+  preview.classList.remove('hidden');
+  btn.classList.add('hidden');
+  btn.innerHTML = '<span style="font-size:10px;color:#f472b6;">Uploading…</span>';
+
+  try {
+    const url = await window.uploadToCloudinary(file);
+    pendingPhotoB64 = url;
+    preview.src = url;
+  } catch (err) {
+    alert('Photo upload failed. Please try again.');
+    clearPhoto();
+  } finally {
+    btn.innerHTML = `<i data-lucide="camera" class="w-5 h-5"></i><span>Photo</span>`;
+    lucide.createIcons();
+  }
 }
 function clearPhoto() {
   pendingPhotoB64 = null;
@@ -887,17 +877,14 @@ function showOfficerForm(id) {
   document.getElementById('of-name').value      = o ? o.name            : '';
   document.getElementById('of-position').value  = o ? o.position        : '';
   document.getElementById('of-committee').value = o ? (o.committee||'') : '';
-
   const role = o ? (o.role||'core') : 'core';
   pendingRole = role; setRole(role);
-
   const preview = document.getElementById('of-photo-preview');
   const btn     = document.getElementById('of-photo-btn');
   if (o && o.photo) {
     preview.src = o.photo; preview.classList.remove('hidden');
     btn.classList.add('hidden'); pendingPhotoB64 = o.photo;
   } else { preview.classList.add('hidden'); btn.classList.remove('hidden'); }
-
   document.getElementById('officer-form-modal').classList.remove('hidden');
   lucide.createIcons();
 }
@@ -908,7 +895,6 @@ function hideOfficerForm() {
 function handleOfficerModalBackdrop(e) {
   if (e.target === document.getElementById('officer-form-modal')) hideOfficerForm();
 }
-
 async function saveOfficer() {
   const name      = document.getElementById('of-name').value.trim();
   const position  = document.getElementById('of-position').value.trim();
@@ -982,7 +968,6 @@ function hideMeetingForm() {
 function handleMeetingModalBackdrop(e) {
   if (e.target === document.getElementById('meeting-form-modal')) hideMeetingForm();
 }
-
 async function saveMeeting() {
   const meeting_title       = document.getElementById('mf-title').value.trim();
   const meeting_date        = document.getElementById('mf-date').value;
@@ -1015,9 +1000,9 @@ function deleteMeeting(id) {
 // ── Attendance ────────────────────────────────────────────────────────────────
 function openAttendance(meetingId) {
   currentMeeting = allData.find(d => d.id===meetingId);
-  document.getElementById('meetings-list').style.display          = 'none';
-  document.getElementById('no-meetings').style.display            = 'none';
-  document.getElementById('meetings-toolbar').style.display       = 'none';
+  document.getElementById('meetings-list').style.display    = 'none';
+  document.getElementById('no-meetings').style.display      = 'none';
+  document.getElementById('meetings-toolbar').style.display = 'none';
   document.getElementById('attendance-view').classList.remove('hidden');
   document.getElementById('attendance-title').textContent = currentMeeting.meeting_title;
   document.getElementById('att-search').value = '';
@@ -1066,7 +1051,6 @@ function renderAttendance() {
   }
   document.getElementById('attendance-body').innerHTML = html;
 }
-
 function attCard(o) {
   const cached  = _attCache[o.id];
   const status  = cached ? cached.status : 'none';
@@ -1081,16 +1065,15 @@ function attCard(o) {
     <span id="att-label-${o.id}" class="text-[10px] font-medium ${color}">${label}</span>
   </div>`;
 }
-
 async function toggleAttendance(officerId) {
   if (!currentMeeting) return;
-  const cached = _attCache[officerId];
-  const card   = document.getElementById('att-card-' + officerId);
-  const labelEl= document.getElementById('att-label-' + officerId);
+  const cached  = _attCache[officerId];
+  const card    = document.getElementById('att-card-' + officerId);
+  const labelEl = document.getElementById('att-label-' + officerId);
   let newStatus, oldRecordId;
-  if      (!cached)                    { newStatus = 'present'; }
-  else if (cached.status==='present')  { newStatus = 'absent';  oldRecordId = cached.id; }
-  else                                 { newStatus = 'none';    oldRecordId = cached.id; }
+  if      (!cached)                   { newStatus = 'present'; }
+  else if (cached.status==='present') { newStatus = 'absent';  oldRecordId = cached.id; }
+  else                                { newStatus = 'none';    oldRecordId = cached.id; }
 
   if (card) {
     card.classList.remove('att-card-present','att-card-absent','att-card-none');
@@ -1110,7 +1093,7 @@ async function toggleAttendance(officerId) {
 
   if (newStatus==='present') {
     const item = { type:'attendance', id:genId(), meeting_title:currentMeeting.meeting_title, meeting_date:currentMeeting.meeting_date, officer_id:officerId, status:'present' };
-    allData.push(item); _attCache[officerId] = { status:'present', id:item.id }; await persistSave(item);
+    allData.push(item); _attCache[officerId]={ status:'present', id:item.id }; await persistSave(item);
   } else if (newStatus==='absent') {
     const rec = allData.find(d => d.id===oldRecordId);
     if (rec) { rec.status='absent'; _attCache[officerId]={ status:'absent', id:rec.id }; await persistSave(rec); }
