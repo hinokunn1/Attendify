@@ -58,16 +58,9 @@
       padding: 16px;
       margin-bottom: 20px;
     }
-    .core-block-header {
-      display:flex; align-items:center; gap:8px; margin-bottom:12px;
-    }
-    .core-block-title {
-      font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#be185d;
-    }
-    .core-block-pill {
-      background:#fce7f3; color:#be185d; font-size:10px; font-weight:700;
-      padding:2px 8px; border-radius:999px; border:1px solid #fbcfe8;
-    }
+    .core-block-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+    .core-block-title  { font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#be185d; }
+    .core-block-pill   { background:#fce7f3; color:#be185d; font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; border:1px solid #fbcfe8; }
 
     .committee-block {
       background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%);
@@ -76,55 +69,47 @@
       padding: 16px;
       margin-bottom: 20px;
     }
-    .committee-outer-header {
-      display:flex; align-items:center; gap:8px; margin-bottom:14px;
-    }
-    .committee-outer-title {
-      font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#6d28d9;
-    }
+    .committee-outer-header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+    .committee-outer-title  { font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#6d28d9; }
 
-    .committee-sub {
-      background: white;
-      border: 1px solid #e9d5ff;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
+    .committee-sub { background:white; border:1px solid #e9d5ff; border-radius:12px; padding:12px; margin-bottom:10px; }
     .committee-sub:last-child { margin-bottom:0; }
     .committee-sub-title {
       font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
       color:#7c3aed; margin-bottom:8px; display:flex; align-items:center; gap:6px;
     }
-    .committee-sub-title::after {
-      content:''; flex:1; height:1px; background:#ede9fe;
-    }
+    .committee-sub-title::after { content:''; flex:1; height:1px; background:#ede9fe; }
 
-    /* Rank row card — core */
     .rank-row-core {
-      background: white;
-      border: 1px solid #fbcfe8;
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 6px;
-      display:flex; align-items:center; gap:10px;
+      background:white; border:1px solid #fbcfe8; border-radius:12px;
+      padding:10px 12px; margin-bottom:6px; display:flex; align-items:center; gap:10px;
     }
     .rank-row-core:last-child { margin-bottom:0; }
 
-    /* Rank row card — committee */
     .rank-row-committee {
-      background: white;
-      border: 1px solid #ede9fe;
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 6px;
-      display:flex; align-items:center; gap:10px;
+      background:white; border:1px solid #ede9fe; border-radius:10px;
+      padding:10px 12px; margin-bottom:6px; display:flex; align-items:center; gap:10px;
     }
     .rank-row-committee:last-child { margin-bottom:0; }
 
-    .unranked-section { border-top:2px dashed #fbcfe8; padding-top:10px; margin-top:8px; }
-    .unranked-section-violet { border-top:2px dashed #e9d5ff; padding-top:10px; margin-top:8px; }
+    .unranked-section        { border-top:2px dashed #fbcfe8;  padding-top:10px; margin-top:8px; }
+    .unranked-section-violet { border-top:2px dashed #e9d5ff;  padding-top:10px; margin-top:8px; }
 
-    /* Info modal animation */
+    /* ── Generic modal backdrop ── */
+    .modal-backdrop {
+      position:fixed; inset:0; background:rgba(0,0,0,.45);
+      z-index:60; display:flex; align-items:center; justify-content:center; padding:16px;
+      animation: backdropIn .18s ease;
+    }
+    @keyframes backdropIn { from { opacity:0; } to { opacity:1; } }
+    .modal-sheet {
+      background:white; border-radius:20px; width:100%; max-width:420px;
+      max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.18);
+      animation: sheetUp .22s cubic-bezier(.34,1.3,.64,1);
+    }
+    @keyframes sheetUp { from { opacity:0; transform:translateY(24px) scale(.97); } to { opacity:1; transform:none; } }
+
+    /* Info modal */
     #ranking-modal { transition: opacity .2s; }
     #ranking-modal.hidden { opacity:0; pointer-events:none; }
 
@@ -132,105 +117,76 @@
     #officer-profile-modal { transition: opacity .2s; }
     #officer-profile-modal.hidden { opacity:0; pointer-events:none; }
 
-    /* Attendance card active states */
+    /* Attendance card */
     .att-card { transition: box-shadow .1s, opacity .1s; }
-    .att-card-present { box-shadow: 0 0 0 4px #4ade80; opacity: 1; }
-    .att-card-absent  { box-shadow: 0 0 0 4px #fca5a5; opacity: 1; }
-    .att-card-none    { opacity: 0.5; }
+    .att-card-present { box-shadow: 0 0 0 4px #4ade80; opacity:1; }
+    .att-card-absent  { box-shadow: 0 0 0 4px #fca5a5; opacity:1; }
+    .att-card-none    { opacity:.5; }
 
     /* Role toggle */
-    .role-btn { transition: all .15s; border:2px solid #fbcfe8; }
-    .role-btn.selected-core { border-color:#ec4899; background:#fdf2f8; color:#be185d; font-weight:600; }
+    .role-btn { transition:all .15s; border:2px solid #fbcfe8; }
+    .role-btn.selected-core   { border-color:#ec4899; background:#fdf2f8; color:#be185d; font-weight:600; }
     .role-btn.selected-member { border-color:#a78bfa; background:#f5f3ff; color:#6d28d9; font-weight:600; }
 
-    /* Inline SVG icon buttons */
+    /* Icon buttons */
     .icon-btn-edit {
       width:24px; height:24px; display:flex; align-items:center; justify-content:center;
       border-radius:50%; background:#fdf2f8; color:#f472b6; border:none; cursor:pointer;
-      transition: background .15s, color .15s;
+      transition:background .15s, color .15s;
     }
     .icon-btn-edit:hover { background:#fce7f3; color:#be185d; }
     .icon-btn-delete {
       width:24px; height:24px; display:flex; align-items:center; justify-content:center;
       border-radius:50%; background:#fff1f2; color:#fca5a5; border:none; cursor:pointer;
-      transition: background .15s, color .15s;
+      transition:background .15s, color .15s;
     }
     .icon-btn-delete:hover { background:#fee2e2; color:#ef4444; }
 
-    /* ── Splash / auth-check screen ── */
+    /* Splash */
     #splash-screen {
-      position: fixed; inset: 0; background: #fdf2f8;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 99999;
+      position:fixed; inset:0; background:#fdf2f8;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:99999;
     }
-    #splash-screen.fade {
-      transition: opacity 0.45s ease;
-      opacity: 0;
-      pointer-events: none;
-    }
-    #splash-screen.gone { display: none; }
-    .splash-logo {
-      height: 64px; width: auto; object-fit: contain;
-      margin-bottom: 28px;
-      animation: splash-pulse 1.6s ease-in-out infinite;
-    }
-    @keyframes splash-pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.75; transform: scale(0.97); }
-    }
-    .splash-dots {
-      display: flex; gap: 8px; margin-top: 4px;
-    }
-    .splash-dots span {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #f9a8d4;
-      animation: splash-bounce 1.2s ease-in-out infinite;
-    }
-    .splash-dots span:nth-child(2) { animation-delay: .2s; background: #f472b6; }
-    .splash-dots span:nth-child(3) { animation-delay: .4s; background: #ec4899; }
-    @keyframes splash-bounce {
-      0%, 80%, 100% { transform: translateY(0);   opacity: .5; }
-      40%           { transform: translateY(-8px); opacity: 1;  }
-    }
-    .splash-label {
-      margin-top: 16px; font-size: 13px; font-weight: 500;
-      color: #db2777; letter-spacing: .02em;
-    }
+    #splash-screen.fade { transition:opacity .45s ease; opacity:0; pointer-events:none; }
+    #splash-screen.gone { display:none; }
+    .splash-logo { height:64px; width:auto; object-fit:contain; margin-bottom:28px; animation:splash-pulse 1.6s ease-in-out infinite; }
+    @keyframes splash-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.75;transform:scale(.97)} }
+    .splash-dots { display:flex; gap:8px; margin-top:4px; }
+    .splash-dots span { width:8px; height:8px; border-radius:50%; background:#f9a8d4; animation:splash-bounce 1.2s ease-in-out infinite; }
+    .splash-dots span:nth-child(2) { animation-delay:.2s; background:#f472b6; }
+    .splash-dots span:nth-child(3) { animation-delay:.4s; background:#ec4899; }
+    @keyframes splash-bounce { 0%,80%,100%{transform:translateY(0);opacity:.5} 40%{transform:translateY(-8px);opacity:1} }
+    .splash-label { margin-top:16px; font-size:13px; font-weight:500; color:#db2777; letter-spacing:.02em; }
   </style>
 </head>
 
 <body class="min-h-screen bg-pink-50">
 
-  <!-- SPLASH: always visible on load, dismissed instantly or with fade by register.js -->
+  <!-- SPLASH -->
   <div id="splash-screen">
     <img src="logo.png" alt="Attendify" class="splash-logo">
-    <div class="splash-dots">
-      <span></span><span></span><span></span>
-    </div>
+    <div class="splash-dots"><span></span><span></span><span></span></div>
     <p class="splash-label">Checking login…</p>
-    <p class="splash-label">Made With Love: Hezron Sison</p>
+    <p class="splash-label">Built with ❤️ by Hezron Sison</p>
   </div>
 
-  <!-- LOGIN SCREEN: hidden behind splash; shown only after Firebase confirms no session -->
+  <!-- LOGIN -->
   <div id="auth-screen" class="fixed inset-0 bg-pink-50 items-center justify-center z-[9999] px-4" style="display:none;">
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
       <img src="logo.png" alt="Attendify" class="h-16 w-auto mx-auto mb-6 object-contain">
-      <input type="email"     id="email"    placeholder="Email"    class="w-full px-4 py-3 border rounded-lg mb-3">
-      <input type="password"  id="password" placeholder="Password" class="w-full px-4 py-3 border rounded-lg mb-4">
+      <input type="email"    id="email"    placeholder="Email"    class="w-full px-4 py-3 border rounded-lg mb-3">
+      <input type="password" id="password" placeholder="Password" class="w-full px-4 py-3 border rounded-lg mb-4">
       <button id="signupBtn" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg mb-2">Sign Up</button>
       <button id="loginBtn"  class="w-full bg-gray-800 hover:bg-black  text-white py-3 rounded-lg">Login</button>
     </div>
   </div>
 
-  <!-- APP CONTENT -->
+  <!-- APP -->
   <div id="app-content" style="display:none;">
 
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center">
-          <img src="logo.png" alt="Attendify" style="height:36px;width:auto;object-fit:contain;">
-        </div>
+        <img src="logo.png" alt="Attendify" style="height:36px;width:auto;object-fit:contain;">
         <button onclick="logoutUser()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs">Logout</button>
       </div>
       <nav class="max-w-4xl mx-auto flex border-t">
@@ -247,7 +203,6 @@
 
       <!-- ── Dashboard ── -->
       <div id="view-dashboard" class="view active">
-
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           <div class="bg-white rounded-xl p-4 shadow-sm text-center">
             <p class="text-2xl font-bold text-pink-600" id="stat-total-officers">0</p>
@@ -262,16 +217,13 @@
             <p class="text-xs text-gray-500 mt-1">Avg. Attendance Rate</p>
           </div>
         </div>
-
         <div class="flex items-center justify-between mb-3">
           <h2 class="font-semibold text-gray-800">Officer Rankings</h2>
           <button onclick="openRankingInfo()"
             class="flex items-center gap-1.5 text-xs text-pink-500 bg-white border border-pink-200 rounded-lg px-2.5 py-1.5 shadow-sm hover:bg-pink-50 transition">
-            <i data-lucide="info" class="w-3.5 h-3.5"></i>
-            How rankings work
+            <i data-lucide="info" class="w-3.5 h-3.5"></i> How rankings work
           </button>
         </div>
-
         <div id="officer-summary-list" class="space-y-2"></div>
         <p id="no-summary" class="text-gray-400 text-center py-8 text-sm">No data yet.</p>
       </div>
@@ -287,59 +239,6 @@
             <i data-lucide="plus" class="w-4 h-4"></i> Add
           </button>
         </div>
-
-        <div id="officer-form-container" class="hidden bg-white rounded-xl p-4 shadow-sm mb-4">
-          <h3 class="font-semibold text-gray-700 mb-3" id="officer-form-title">Add Officer</h3>
-          <div class="space-y-3">
-
-            <!-- Photo -->
-            <div class="flex items-center gap-4">
-              <div>
-                <img id="of-photo-preview" class="photo-preview hidden">
-                <div id="of-photo-btn" class="photo-btn" onclick="document.getElementById('photo-file-input').click()">
-                  <i data-lucide="camera" class="w-5 h-5"></i>
-                  <span>Photo</span>
-                </div>
-              </div>
-              <div class="text-xs text-gray-400 leading-relaxed">
-                Tap the circle to choose<br>a photo from your device.<br>
-                <button type="button" onclick="clearPhoto()" class="text-pink-400 underline mt-1">Remove photo</button>
-              </div>
-            </div>
-
-            <!-- Role selector -->
-            <div>
-              <p class="text-xs text-gray-500 mb-1.5 font-medium">Role</p>
-              <div class="flex gap-2">
-                <button type="button" id="role-btn-core"
-                  onclick="setRole('core')"
-                  class="role-btn flex-1 py-2 rounded-lg text-sm text-gray-500 selected-core">
-                  ⭐ Core Officer
-                </button>
-                <button type="button" id="role-btn-member"
-                  onclick="setRole('member')"
-                  class="role-btn flex-1 py-2 rounded-lg text-sm text-gray-500">
-                  👥 Committee Member
-                </button>
-              </div>
-            </div>
-
-            <input id="of-name"      type="text" placeholder="Full Name" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <input id="of-position"  type="text" placeholder="Position"  class="w-full px-3 py-2 border rounded-lg text-sm">
-            <div id="committee-field-wrapper">
-              <input id="of-committee" type="text" placeholder="Committee (e.g. Academic, Finance…)"
-                list="committee-list" autocomplete="off"
-                class="w-full px-3 py-2 border rounded-lg text-sm">
-              <datalist id="committee-list"></datalist>
-            </div>
-
-            <div class="flex gap-2">
-              <button onclick="saveOfficer()"    class="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Save</button>
-              <button onclick="hideOfficerForm()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm">Cancel</button>
-            </div>
-          </div>
-        </div>
-
         <div id="officers-body"></div>
         <p id="no-officers" class="text-gray-400 text-center py-8 text-sm hidden">No officers enrolled yet.</p>
       </div>
@@ -357,20 +256,6 @@
             <span id="sort-label">Newest First</span>
           </button>
         </div>
-
-        <div id="meeting-form-container" class="hidden bg-white rounded-xl p-4 shadow-sm mb-4">
-          <h3 class="font-semibold text-gray-700 mb-3" id="meeting-form-title">Create Meeting</h3>
-          <div class="space-y-3">
-            <input id="mf-title" type="text" placeholder="Meeting Title" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <input id="mf-date"  type="date"                             class="w-full px-3 py-2 border rounded-lg text-sm">
-            <textarea id="mf-desc" placeholder="Description (optional)"  class="w-full px-3 py-2 border rounded-lg text-sm" rows="2"></textarea>
-            <div class="flex gap-2">
-              <button onclick="saveMeeting()"    class="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Save</button>
-              <button onclick="hideMeetingForm()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm">Cancel</button>
-            </div>
-          </div>
-        </div>
-
         <div id="meetings-list" class="space-y-3"></div>
         <p id="no-meetings" class="text-gray-400 text-center py-8 text-sm">No meetings created yet.</p>
 
@@ -396,7 +281,11 @@
 
     </main>
 
-    <!-- ── Delete confirmation overlay ── -->
+    <!-- ════════════════════════════════════════════════════
+         MODALS
+    ════════════════════════════════════════════════════ -->
+
+    <!-- ── Delete confirm ── -->
     <div id="confirm-overlay" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-xl p-5 max-w-sm w-full shadow-xl">
         <p id="confirm-msg" class="text-gray-700 text-sm mb-4">Are you sure?</p>
@@ -407,50 +296,39 @@
       </div>
     </div>
 
-    <!-- ── Ranking info modal ── -->
+    <!-- ── Ranking info ── -->
     <div id="ranking-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-xl overflow-y-auto max-h-[90vh]">
-
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold text-gray-800 text-base">How Rankings Work</h3>
           <button onclick="closeRankingInfo()" class="text-gray-400 hover:text-gray-600">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
-
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">① Two separate leaderboards</p>
           <div class="rounded-xl overflow-hidden border border-gray-100 text-xs">
             <div class="flex items-start gap-2 px-3 py-2.5 bg-pink-50">
               <span class="text-base leading-none mt-0.5">⭐</span>
-              <div>
-                <span class="font-semibold text-pink-700">Core Officers</span>
-                <span class="text-gray-500"> — ranked together in a single leaderboard at the top of the dashboard, regardless of committee.</span>
-              </div>
+              <div><span class="font-semibold text-pink-700">Core Officers</span><span class="text-gray-500"> — ranked together in a single leaderboard at the top of the dashboard, regardless of committee.</span></div>
             </div>
             <div class="flex items-start gap-2 px-3 py-2.5 bg-violet-50">
               <span class="text-base leading-none mt-0.5">👥</span>
-              <div>
-                <span class="font-semibold text-violet-700">Committee Members</span>
-                <span class="text-gray-500"> — ranked within their own committee. Each committee has its own #1, #2, #3.</span>
-              </div>
+              <div><span class="font-semibold text-violet-700">Committee Members</span><span class="text-gray-500"> — ranked within their own committee. Each committee has its own #1, #2, #3.</span></div>
             </div>
           </div>
         </div>
-
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">② Only required meetings count</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-2">
-            Officers are only judged on meetings they were expected to attend.
-          </p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-2">Officers are only judged on meetings they were expected to attend.</p>
           <div class="rounded-xl overflow-hidden border border-gray-100 text-xs">
             <div class="flex items-center gap-2 px-3 py-2 bg-green-50">
               <span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center font-bold flex-shrink-0">✓</span>
-              <div><span class="font-semibold text-green-700">Present</span> <span class="text-gray-500">— showed up. Counts as attended.</span></div>
+              <div><span class="font-semibold text-green-700">Present</span> <span class="text-gray-500">— showed up.</span></div>
             </div>
             <div class="flex items-center gap-2 px-3 py-2 bg-red-50">
               <span class="w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center font-bold flex-shrink-0">✗</span>
-              <div><span class="font-semibold text-red-600">Absent</span> <span class="text-gray-500">— required but didn't come. Still counts.</span></div>
+              <div><span class="font-semibold text-red-600">Absent</span> <span class="text-gray-500">— required but didn't come.</span></div>
             </div>
             <div class="flex items-center gap-2 px-3 py-2 bg-gray-50">
               <span class="w-5 h-5 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold flex-shrink-0">—</span>
@@ -458,40 +336,29 @@
             </div>
           </div>
         </div>
-
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">③ Attendance rate = attended ÷ required</p>
           <div class="bg-pink-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
             If an officer attended <strong>8 out of 10</strong> required meetings, their rate is <strong class="text-pink-600">80%</strong>.
           </div>
         </div>
-
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">④ Same rate? More meetings wins.</p>
-          <p class="text-xs text-gray-500 leading-relaxed">
-            Perfect across 10 required meetings ranks higher than perfect across 2.
-          </p>
+          <p class="text-xs text-gray-500 leading-relaxed">Perfect across 10 required meetings ranks higher than perfect across 2.</p>
         </div>
-
         <div class="mb-4">
           <p class="text-xs font-bold text-gray-700 mb-1.5">⑤ 30% threshold to be ranked</p>
           <div class="bg-amber-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
-            Officers must be required for at least <strong class="text-amber-600">30% of all meetings</strong> to appear in the ranked list. Those below appear in the <span class="font-semibold text-gray-500">Unranked</span> section.
+            Officers must be required for at least <strong class="text-amber-600">30% of all meetings</strong> to appear in the ranked list.
           </div>
         </div>
-
-        <button onclick="closeRankingInfo()"
-          class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">
-          Got it
-        </button>
-
+        <button onclick="closeRankingInfo()" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Got it</button>
       </div>
     </div>
 
-    <!-- ── Officer Profile Modal ── -->
+    <!-- ── Officer Profile ── -->
     <div id="officer-profile-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
-
         <div class="bg-gradient-to-br from-pink-500 to-pink-600 px-5 pt-5 pb-8 relative">
           <button onclick="closeOfficerProfile()" class="absolute top-4 right-4 text-white/70 hover:text-white">
             <i data-lucide="x" class="w-5 h-5"></i>
@@ -509,7 +376,6 @@
             </div>
           </div>
         </div>
-
         <div class="grid grid-cols-3 -mt-4 mx-4 bg-white rounded-xl shadow-md overflow-hidden border border-pink-100">
           <div class="text-center py-3 px-2">
             <p id="op-rate"     class="text-lg font-bold text-pink-600"></p>
@@ -524,7 +390,6 @@
             <p class="text-[10px] text-gray-400">Required</p>
           </div>
         </div>
-
         <div class="px-5 pt-5 pb-2">
           <div id="op-rank-row" class="flex items-center justify-between mb-3">
             <span id="op-rank-label" class="text-xs text-gray-500 font-medium">Overall Rank</span>
@@ -541,60 +406,108 @@
           </div>
           <div id="op-threshold-notice" class="hidden mb-4 bg-amber-50 rounded-xl px-3 py-2.5 text-xs text-amber-700 leading-relaxed"></div>
         </div>
-
         <div class="px-5 pb-5">
           <p class="text-xs font-bold text-gray-700 mb-2">Meeting History</p>
           <div id="op-meeting-history" class="space-y-1.5 max-h-40 overflow-y-auto pr-1"></div>
           <p id="op-no-history" class="text-xs text-gray-300 text-center py-3 hidden">No meeting records yet.</p>
         </div>
+      </div>
+    </div>
 
+    <!-- ── Officer Form Modal ── -->
+    <div id="officer-form-modal" class="hidden modal-backdrop" onclick="handleOfficerModalBackdrop(event)">
+      <div class="modal-sheet p-5" id="officer-form-sheet">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-gray-800 text-base" id="officer-form-title">Add Officer</h3>
+          <button onclick="hideOfficerForm()" class="text-gray-400 hover:text-gray-600">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Photo -->
+        <div class="flex items-center gap-4 mb-4">
+          <div>
+            <img id="of-photo-preview" class="photo-preview hidden">
+            <div id="of-photo-btn" class="photo-btn" onclick="document.getElementById('photo-file-input').click()">
+              <i data-lucide="camera" class="w-5 h-5"></i>
+              <span>Photo</span>
+            </div>
+          </div>
+          <div class="text-xs text-gray-400 leading-relaxed">
+            Tap the circle to choose<br>a photo from your device.<br>
+            <button type="button" onclick="clearPhoto()" class="text-pink-400 underline mt-1">Remove photo</button>
+          </div>
+        </div>
+
+        <!-- Role -->
+        <div class="mb-3">
+          <p class="text-xs text-gray-500 mb-1.5 font-medium">Role</p>
+          <div class="flex gap-2">
+            <button type="button" id="role-btn-core"   onclick="setRole('core')"   class="role-btn flex-1 py-2 rounded-lg text-sm text-gray-500 selected-core">⭐ Core Officer</button>
+            <button type="button" id="role-btn-member" onclick="setRole('member')" class="role-btn flex-1 py-2 rounded-lg text-sm text-gray-500">👥 Committee Member</button>
+          </div>
+        </div>
+
+        <input id="of-name"      type="text" placeholder="Full Name" class="w-full px-3 py-2 border rounded-lg text-sm mb-3">
+        <input id="of-position"  type="text" placeholder="Position"  class="w-full px-3 py-2 border rounded-lg text-sm mb-3">
+        <div id="committee-field-wrapper" class="mb-4">
+          <input id="of-committee" type="text" placeholder="Committee (e.g. Academic, Finance…)"
+            list="committee-list" autocomplete="off"
+            class="w-full px-3 py-2 border rounded-lg text-sm">
+          <datalist id="committee-list"></datalist>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="saveOfficer()"    class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Save</button>
+          <button onclick="hideOfficerForm()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Meeting Form Modal ── -->
+    <div id="meeting-form-modal" class="hidden modal-backdrop" onclick="handleMeetingModalBackdrop(event)">
+      <div class="modal-sheet p-5" id="meeting-form-sheet">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-gray-800 text-base" id="meeting-form-title">Create Meeting</h3>
+          <button onclick="hideMeetingForm()" class="text-gray-400 hover:text-gray-600">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <input id="mf-title" type="text" placeholder="Meeting Title" class="w-full px-3 py-2 border rounded-lg text-sm mb-3">
+        <input id="mf-date"  type="date"                             class="w-full px-3 py-2 border rounded-lg text-sm mb-3">
+        <textarea id="mf-desc" placeholder="Description (optional)"  class="w-full px-3 py-2 border rounded-lg text-sm mb-4" rows="2"></textarea>
+        <div class="flex gap-2">
+          <button onclick="saveMeeting()"    class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Save</button>
+          <button onclick="hideMeetingForm()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl text-sm">Cancel</button>
+        </div>
       </div>
     </div>
 
   </div><!-- end app-content -->
 
   <script>
-// ── Splash helpers ─────────────────────────────────────────────────────────────────────────────
-// The splash is always shown on load (covers everything instantly).
-// register.js calls window.resolveSplash() once onAuthStateChanged fires.
-//
-//   resolveSplash(true)  → user logged in  → fade splash out gracefully
-//   resolveSplash(false) → not logged in   → remove splash instantly, show login
-//
-// This means:
-//   - Logged-in users on refresh: see branded loading screen → smooth fade to app
-//   - New / logged-out users: splash disappears so fast they never notice it
-//   - Login screen never flashes for logged-in users
-
+// ── Splash ────────────────────────────────────────────────────────────────────
 window.resolveSplash = function(isLoggedIn) {
   var splash = document.getElementById('splash-screen');
   var auth   = document.getElementById('auth-screen');
   var app    = document.getElementById('app-content');
-
   if (isLoggedIn) {
-    // Fade the splash out, then fully remove it
     splash.classList.add('fade');
     setTimeout(function() { splash.classList.add('gone'); }, 460);
     if (auth) auth.style.display = 'none';
-    // register.js handles showing app-content
   } else {
-    // Not logged in — kill splash instantly, show login form
     splash.classList.add('gone');
     if (auth) auth.style.display = 'flex';
     if (app)  app.style.display  = 'none';
   }
 };
-
-// Safety net: if register.js never calls resolveSplash within 8s, show login
 setTimeout(function() {
   var splash = document.getElementById('splash-screen');
-  if (splash && !splash.classList.contains('gone')) {
-    window.resolveSplash(false);
-  }
+  if (splash && !splash.classList.contains('gone')) window.resolveSplash(false);
 }, 8000);
 
-// ── SVG icon helpers (inline — no Lucide dependency for small buttons) ────────
-const SVG_EDIT = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+// ── SVG icons ─────────────────────────────────────────────────────────────────
+const SVG_EDIT  = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
 const SVG_TRASH = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -613,7 +526,6 @@ let pendingRole      = 'core';
 
 // ── Attendance cache ──────────────────────────────────────────────────────────
 let _attCache = {};
-
 function buildAttCache() {
   if (!currentMeeting) return;
   _attCache = {};
@@ -622,21 +534,15 @@ function buildAttCache() {
 }
 
 // ── Firestore wrappers ────────────────────────────────────────────────────────
-async function persistSave(item) {
-  if (window.currentUserId) await window.fsSaveItem(window.currentUserId, item);
-}
-async function persistDelete(itemId) {
-  if (window.currentUserId) await window.fsDeleteItem(window.currentUserId, itemId);
-}
+async function persistSave(item)   { if (window.currentUserId) await window.fsSaveItem(window.currentUserId, item); }
+async function persistDelete(itemId) { if (window.currentUserId) await window.fsDeleteItem(window.currentUserId, itemId); }
 
 // ── Getters ───────────────────────────────────────────────────────────────────
-function getOfficers()  { return allData.filter(d => d.type === 'officer'); }
-function getMeetings()  { return allData.filter(d => d.type === 'meeting'); }
-function getCoreOfficers()     { return getOfficers().filter(o => (o.role || 'core') === 'core'); }
+function getOfficers()         { return allData.filter(d => d.type === 'officer'); }
+function getMeetings()         { return allData.filter(d => d.type === 'meeting'); }
+function getCoreOfficers()     { return getOfficers().filter(o => (o.role||'core') === 'core'); }
 function getCommitteeMembers() { return getOfficers().filter(o => o.role === 'member'); }
-function getAttendance(title, date) {
-  return allData.filter(d => d.type === 'attendance' && d.meeting_title === title && d.meeting_date === date);
-}
+function getAttendance(title, date) { return allData.filter(d => d.type==='attendance' && d.meeting_title===title && d.meeting_date===date); }
 function getCommittees() {
   const s = new Set(getOfficers().map(o => (o.committee||'').trim()).filter(Boolean));
   return [...s].sort();
@@ -658,11 +564,9 @@ function closeRankingInfo() { document.getElementById('ranking-modal').classList
 
 // ── Ranking logic ─────────────────────────────────────────────────────────────
 const RANK_THRESHOLD = 0.30;
-
 function computeRankings(officers, allAttendance) {
   const totalMeetings = getMeetings().length;
   const threshold     = Math.ceil(totalMeetings * RANK_THRESHOLD);
-
   const stats = officers.map(o => {
     const records  = allAttendance.filter(a => a.officer_id === o.id);
     const present  = records.filter(a => a.status === 'present').length;
@@ -671,26 +575,18 @@ function computeRankings(officers, allAttendance) {
     const ranked   = totalMeetings === 0 || required >= threshold;
     return { o, present, required, rate, ranked, threshold, totalMeetings };
   });
-
-  const rankedList   = stats.filter(s => s.ranked).sort((a, b) => {
-    if (b.rate !== a.rate) return b.rate - a.rate;
-    return b.required - a.required;
-  });
-  const unrankedList = stats.filter(s => !s.ranked).sort((a, b) => b.required - a.required);
-
+  const rankedList   = stats.filter(s =>  s.ranked).sort((a,b) => b.rate !== a.rate ? b.rate - a.rate : b.required - a.required);
+  const unrankedList = stats.filter(s => !s.ranked).sort((a,b) => b.required - a.required);
   return { rankedList, unrankedList, threshold, totalMeetings };
 }
 
 // ── Officer Profile Modal ─────────────────────────────────────────────────────
 function openOfficerProfile(officerId) {
-  const o             = allData.find(d => d.id === officerId);
-  if (!o) return;
+  const o = allData.find(d => d.id === officerId); if (!o) return;
   const allAttendance = allData.filter(d => d.type === 'attendance');
-  const isCore        = (o.role || 'core') === 'core';
-
+  const isCore = (o.role||'core') === 'core';
   const pool = isCore ? getCoreOfficers() : getCommitteeMembers().filter(m => (m.committee||'') === (o.committee||''));
   const { rankedList, unrankedList, threshold, totalMeetings } = computeRankings(pool, allAttendance);
-
   const stat      = [...rankedList, ...unrankedList].find(s => s.o.id === officerId);
   const rankIndex = rankedList.findIndex(s => s.o.id === officerId);
   const isRanked  = rankIndex !== -1;
@@ -699,35 +595,26 @@ function openOfficerProfile(officerId) {
   document.getElementById('op-avatar').src            = avatar(o);
   document.getElementById('op-name').textContent      = o.name;
   document.getElementById('op-position').textContent  = o.position || '';
-  document.getElementById('op-committee').textContent = o.committee ? o.committee : '';
+  document.getElementById('op-committee').textContent = o.committee || '';
 
   const roleBadge = document.getElementById('op-role-badge');
-  if (isCore) {
-    roleBadge.textContent = '⭐ Core Officer';
-    roleBadge.className   = 'inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-pink-100 text-pink-700';
-  } else {
-    roleBadge.textContent = '👥 Committee Member';
-    roleBadge.className   = 'inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700';
-  }
+  if (isCore) { roleBadge.textContent = '⭐ Core Officer';     roleBadge.className = 'inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-pink-100 text-pink-700'; }
+  else        { roleBadge.textContent = '👥 Committee Member'; roleBadge.className = 'inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700'; }
 
   document.getElementById('op-rate').textContent     = stat ? pct + '%' : '—';
-  document.getElementById('op-present').textContent  = stat ? stat.present : 0;
+  document.getElementById('op-present').textContent  = stat ? stat.present  : 0;
   document.getElementById('op-required').textContent = stat ? stat.required : 0;
 
-  const rankLabelEl = document.getElementById('op-rank-label');
-  rankLabelEl.textContent = isCore ? 'Core Officers Rank' : `Rank in ${o.committee || 'Committee'}`;
+  document.getElementById('op-rank-label').textContent = isCore ? 'Core Officers Rank' : `Rank in ${o.committee || 'Committee'}`;
 
   const badge   = document.getElementById('op-rank-badge');
   const rankRow = document.getElementById('op-rank-row');
   if (isRanked) {
-    const medal = rankIndex === 0 ? '🥇 #1' : rankIndex === 1 ? '🥈 #2' : rankIndex === 2 ? '🥉 #3' : `#${rankIndex + 1}`;
+    const medal = rankIndex===0?'🥇 #1':rankIndex===1?'🥈 #2':rankIndex===2?'🥉 #3':`#${rankIndex+1}`;
     badge.textContent = medal;
-    const cls = rankIndex === 0 ? 'rank-1' : rankIndex === 1 ? 'rank-2' : rankIndex === 2 ? 'rank-3' : 'rank-other';
-    badge.className   = `text-sm font-bold px-3 py-1 rounded-full ${cls}`;
+    badge.className   = `text-sm font-bold px-3 py-1 rounded-full ${rankIndex===0?'rank-1':rankIndex===1?'rank-2':rankIndex===2?'rank-3':'rank-other'}`;
     rankRow.classList.remove('hidden');
-  } else {
-    rankRow.classList.add('hidden');
-  }
+  } else { rankRow.classList.add('hidden'); }
 
   const barSection  = document.getElementById('op-bar-section');
   const thresholdEl = document.getElementById('op-threshold-notice');
@@ -735,42 +622,34 @@ function openOfficerProfile(officerId) {
     barSection.classList.remove('hidden');
     document.getElementById('op-bar-label').textContent = `${stat.present}/${stat.required} meetings`;
     document.getElementById('op-bar-fill').style.width  = pct + '%';
-    document.getElementById('op-bar-fill').className    =
-      `h-full rounded-full transition-all duration-700 ${pct >= 80 ? 'bg-green-400' : pct >= 50 ? 'bg-amber-400' : 'bg-red-400'}`;
-  } else {
-    barSection.classList.add('hidden');
-  }
+    document.getElementById('op-bar-fill').className    = `h-full rounded-full transition-all duration-700 ${pct>=80?'bg-green-400':pct>=50?'bg-amber-400':'bg-red-400'}`;
+  } else { barSection.classList.add('hidden'); }
 
   if (!isRanked && totalMeetings > 0) {
     const need = threshold - (stat ? stat.required : 0);
     thresholdEl.classList.remove('hidden');
-    thresholdEl.textContent = `Needs ${need} more required meeting${need !== 1 ? 's' : ''} to be ranked (threshold: ${threshold} of ${totalMeetings}).`;
-  } else {
-    thresholdEl.classList.add('hidden');
-  }
+    thresholdEl.textContent = `Needs ${need} more required meeting${need!==1?'s':''} to be ranked (threshold: ${threshold} of ${totalMeetings}).`;
+  } else { thresholdEl.classList.add('hidden'); }
 
   const officerRecords = allAttendance.filter(a => a.officer_id === officerId);
   const historyEl      = document.getElementById('op-meeting-history');
   const noHistoryEl    = document.getElementById('op-no-history');
-
-  if (!officerRecords.length) {
-    historyEl.innerHTML = '';
-    noHistoryEl.classList.remove('hidden');
-  } else {
+  if (!officerRecords.length) { historyEl.innerHTML = ''; noHistoryEl.classList.remove('hidden'); }
+  else {
     noHistoryEl.classList.add('hidden');
-    const sorted = officerRecords.slice().sort((a, b) => b.meeting_date?.localeCompare(a.meeting_date));
+    const sorted = officerRecords.slice().sort((a,b) => b.meeting_date?.localeCompare(a.meeting_date));
     historyEl.innerHTML = sorted.map(r => {
-      const icon  = r.status === 'present'
+      const icon  = r.status==='present'
         ? `<span class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>`
         : `<span class="w-5 h-5 rounded-full bg-red-100 text-red-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0">✗</span>`;
-      const color = r.status === 'present' ? 'text-green-700' : 'text-red-500';
+      const color = r.status==='present' ? 'text-green-700' : 'text-red-500';
       return `<div class="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
         ${icon}
         <div class="flex-1 min-w-0">
           <p class="text-xs font-medium text-gray-700 truncate">${esc(r.meeting_title)}</p>
           <p class="text-[10px] text-gray-400">${r.meeting_date}</p>
         </div>
-        <span class="text-[10px] font-semibold ${color}">${r.status === 'present' ? 'Present' : 'Absent'}</span>
+        <span class="text-[10px] font-semibold ${color}">${r.status==='present'?'Present':'Absent'}</span>
       </div>`;
     }).join('');
   }
@@ -779,14 +658,10 @@ function openOfficerProfile(officerId) {
   document.getElementById('officer-profile-modal').dataset.officerId = officerId;
   lucide.createIcons();
 }
-function closeOfficerProfile() {
-  document.getElementById('officer-profile-modal').classList.add('hidden');
-}
+function closeOfficerProfile() { document.getElementById('officer-profile-modal').classList.add('hidden'); }
 function editFromProfile() {
-  const modal = document.getElementById('officer-profile-modal');
-  const id = modal.dataset.officerId;
+  const id = document.getElementById('officer-profile-modal').dataset.officerId;
   closeOfficerProfile();
-  switchTab('officers');
   setTimeout(() => { showOfficerForm(id); }, 80);
 }
 
@@ -798,21 +673,18 @@ function renderDashboard() {
 
   document.getElementById('stat-total-officers').textContent = officers.length;
   document.getElementById('stat-total-meetings').textContent = meetings.length;
-
-  const totalPresent  = allAttendance.filter(a => a.status === 'present').length;
-  const totalRequired = allAttendance.length;
-  const avgRate       = totalRequired ? Math.round(totalPresent / totalRequired * 100) : 0;
+  const totalPresent  = allAttendance.filter(a => a.status==='present').length;
+  const avgRate       = allAttendance.length ? Math.round(totalPresent / allAttendance.length * 100) : 0;
   document.getElementById('stat-attendance-rate').textContent = avgRate + '%';
 
   const list = document.getElementById('officer-summary-list');
   const noEl = document.getElementById('no-summary');
-
   if (!officers.length) { list.innerHTML = ''; noEl.style.display = ''; return; }
   noEl.style.display = 'none';
 
-  const medalIcon    = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
-  const rankBadgeCls = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-  const rateColor    = pct => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
+  const medalIcon    = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':null;
+  const rankBadgeCls = i => i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+  const rateColor    = pct => pct>=80?'text-green-600':pct>=50?'text-amber-500':'text-red-500';
 
   const renderRow = (s, i, isRanked, topRate, rowClass, barColor) => {
     const pct      = Math.round(s.rate * 100);
@@ -820,15 +692,14 @@ function renderDashboard() {
     const medal    = isRanked ? medalIcon(i) : null;
     const noData   = s.required === 0;
     const bar      = barColor || 'bg-pink-400';
-
     return `<div class="${rowClass}">
-      <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isRanked ? rankBadgeCls(i) : 'bg-gray-100 text-gray-400'}">
-        ${isRanked ? (medal ? medal : (i + 1)) : '—'}
+      <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isRanked?rankBadgeCls(i):'bg-gray-100 text-gray-400'}">
+        ${isRanked ? (medal ? medal : (i+1)) : '—'}
       </div>
       <img src="${avatar(s.o)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-gray-800 truncate">${esc(s.o.name)}</p>
-        <p class="text-xs text-gray-400 truncate">${esc(s.o.position)}${s.o.committee ? ' · ' + esc(s.o.committee) : ''}</p>
+        <p class="text-xs text-gray-400 truncate">${esc(s.o.position)}${s.o.committee?' · '+esc(s.o.committee):''}</p>
         ${noData
           ? `<p class="text-[10px] text-gray-300 mt-1">No required meetings yet</p>`
           : `<div class="mt-1.5 h-1.5 rounded-full overflow-hidden" style="background:rgba(0,0,0,0.07)">
@@ -852,7 +723,6 @@ function renderDashboard() {
 
   let html = '';
 
-  // ── Core Officers block ────────────────────────────────────────────────────
   const coreOfficers = getCoreOfficers();
   if (coreOfficers.length) {
     const { rankedList: coreRanked, unrankedList: coreUnranked } = computeRankings(coreOfficers, allAttendance);
@@ -861,19 +731,18 @@ function renderDashboard() {
       <div class="core-block-header">
         <span style="font-size:16px;">⭐</span>
         <span class="core-block-title">Core Officers</span>
-        <span class="core-block-pill">${coreOfficers.length} officer${coreOfficers.length !== 1 ? 's' : ''}</span>
+        <span class="core-block-pill">${coreOfficers.length} officer${coreOfficers.length!==1?'s':''}</span>
       </div>
-      ${coreRanked.map((s, i) => renderRow(s, i, true, coreTopRate, 'rank-row-core', 'bg-pink-400')).join('')}`;
+      ${coreRanked.map((s,i) => renderRow(s,i,true,coreTopRate,'rank-row-core','bg-pink-400')).join('')}`;
     if (coreUnranked.length) {
       html += `<div class="unranked-section">
         <p class="text-[10px] text-gray-400 font-semibold mb-2 uppercase tracking-wide">Unranked · below 30% threshold</p>
-        ${coreUnranked.map((s, i) => renderRow(s, i, false, 1, 'rank-row-core', 'bg-pink-300')).join('')}
+        ${coreUnranked.map((s,i) => renderRow(s,i,false,1,'rank-row-core','bg-pink-300')).join('')}
       </div>`;
     }
     html += `</div>`;
   }
 
-  // ── Committee Members block ────────────────────────────────────────────────
   const members = getCommitteeMembers();
   if (members.length) {
     const committeeMap = new Map();
@@ -882,29 +751,24 @@ function renderDashboard() {
       if (!committeeMap.has(key)) committeeMap.set(key, []);
       committeeMap.get(key).push(o);
     }
-    const sortedCommittees = [...committeeMap.keys()].sort((a,b) => {
-      if (a==='General') return 1; if (b==='General') return -1; return a.localeCompare(b);
-    });
-
+    const sortedCommittees = [...committeeMap.keys()].sort((a,b) => { if(a==='General')return 1;if(b==='General')return -1;return a.localeCompare(b); });
     html += `<div class="committee-block">
       <div class="committee-outer-header">
         <span style="font-size:16px;">👥</span>
         <span class="committee-outer-title">Committee Rankings</span>
-        <span style="background:#ede9fe;color:#6d28d9;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #ddd6fe;">${members.length} member${members.length !== 1 ? 's' : ''}</span>
+        <span style="background:#ede9fe;color:#6d28d9;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #ddd6fe;">${members.length} member${members.length!==1?'s':''}</span>
       </div>`;
-
     for (const committee of sortedCommittees) {
       const group = committeeMap.get(committee);
       const { rankedList, unrankedList } = computeRankings(group, allAttendance);
       const topRate = rankedList.length ? rankedList[0].rate : 1;
-
       html += `<div class="committee-sub">
         <div class="committee-sub-title">${esc(committee)}</div>
-        ${rankedList.map((s, i) => renderRow(s, i, true, topRate, 'rank-row-committee', 'bg-violet-400')).join('')}`;
+        ${rankedList.map((s,i) => renderRow(s,i,true,topRate,'rank-row-committee','bg-violet-400')).join('')}`;
       if (unrankedList.length) {
         html += `<div class="unranked-section-violet">
           <p class="text-[10px] text-gray-400 font-semibold mb-2 uppercase tracking-wide">Unranked · below 30% threshold</p>
-          ${unrankedList.map((s, i) => renderRow(s, i, false, 1, 'rank-row-committee', 'bg-violet-300')).join('')}
+          ${unrankedList.map((s,i) => renderRow(s,i,false,1,'rank-row-committee','bg-violet-300')).join('')}
         </div>`;
       }
       html += `</div>`;
@@ -912,29 +776,24 @@ function renderDashboard() {
     html += `</div>`;
   }
 
-  if (!html) {
-    noEl.style.display = '';
-    list.innerHTML = '';
-    return;
-  }
-
+  if (!html) { noEl.style.display = ''; list.innerHTML = ''; return; }
   list.innerHTML = html;
 }
 
-// ── Role selector (officer form) ─────────────────────────────────────────────
+// ── Role selector ─────────────────────────────────────────────────────────────
 function setRole(role) {
   pendingRole = role;
   const coreBtn   = document.getElementById('role-btn-core');
   const memberBtn = document.getElementById('role-btn-member');
   const wrapper   = document.getElementById('committee-field-wrapper');
-  coreBtn.className   = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role === 'core'   ? 'selected-core'   : 'text-gray-500');
-  memberBtn.className = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role === 'member' ? 'selected-member' : 'text-gray-500');
+  coreBtn.className   = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role==='core'  ?'selected-core'  :'text-gray-500');
+  memberBtn.className = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role==='member'?'selected-member':'text-gray-500');
   wrapper.style.opacity = role === 'core' ? '0.6' : '1';
 }
 
 // ── Officers ──────────────────────────────────────────────────────────────────
 function renderOfficers() {
-  const q = (document.getElementById('officer-search')?.value || '').toLowerCase();
+  const q = (document.getElementById('officer-search')?.value||'').toLowerCase();
   const officers = getOfficers().filter(o =>
     o.name.toLowerCase().includes(q) ||
     (o.committee||'').toLowerCase().includes(q) ||
@@ -942,39 +801,32 @@ function renderOfficers() {
   );
   const body = document.getElementById('officers-body');
   const noEl = document.getElementById('no-officers');
-  if (!officers.length) { body.innerHTML = ''; noEl.classList.remove('hidden'); return; }
+  if (!officers.length) { body.innerHTML=''; noEl.classList.remove('hidden'); return; }
   noEl.classList.add('hidden');
 
-  const core    = officers.filter(o => (o.role || 'core') === 'core');
-  const members = officers.filter(o => o.role === 'member');
-
+  const core    = officers.filter(o => (o.role||'core')==='core');
+  const members = officers.filter(o => o.role==='member');
   let html = '';
 
   if (core.length) {
     html += `<div class="mb-6">
       <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">⭐ Core Officers</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        ${core.map(o => officerCard(o)).join('')}
-      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${core.map(o => officerCard(o)).join('')}</div>
     </div>`;
   }
-
   if (members.length) {
     const groups = groupByCommittee(members);
     html += groups.map(({ label, members: m }) => `
       <div class="mb-6">
         <h3 class="text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2 px-1">👥 ${esc(label)}</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          ${m.map(o => officerCard(o)).join('')}
-        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${m.map(o => officerCard(o)).join('')}</div>
       </div>`).join('');
   }
-
   body.innerHTML = html;
 }
 
 function officerCard(o) {
-  const isCore = (o.role || 'core') === 'core';
+  const isCore = (o.role||'core') === 'core';
   const badge  = isCore
     ? `<span class="text-[9px] font-semibold text-pink-500 bg-pink-50 px-1.5 py-0.5 rounded-full mt-0.5 inline-block">Core</span>`
     : `<span class="text-[9px] font-semibold text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-full mt-0.5 inline-block">Member</span>`;
@@ -998,9 +850,7 @@ function groupByCommittee(officers) {
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(o);
   }
-  const keys = [...map.keys()].sort((a,b) => {
-    if (a==='General') return 1; if (b==='General') return -1; return a.localeCompare(b);
-  });
+  const keys = [...map.keys()].sort((a,b) => { if(a==='General')return 1;if(b==='General')return -1;return a.localeCompare(b); });
   return keys.map(k => ({ label:k, members:map.get(k) }));
 }
 
@@ -1023,12 +873,12 @@ function clearPhoto() {
   document.getElementById('of-photo-btn').classList.remove('hidden');
 }
 function refreshCommitteeList() {
-  document.getElementById('committee-list').innerHTML =
-    getCommittees().map(c => `<option value="${esc(c)}">`).join('');
+  document.getElementById('committee-list').innerHTML = getCommittees().map(c => `<option value="${esc(c)}">`).join('');
 }
+
+// ── Officer Form Modal ────────────────────────────────────────────────────────
 function showOfficerForm(id) {
   editingOfficerId = id || null; pendingPhotoB64 = null;
-  document.getElementById('officer-form-container').classList.remove('hidden');
   document.getElementById('officer-form-title').textContent = id ? 'Edit Officer' : 'Add Officer';
   refreshCommitteeList();
   const o = id ? allData.find(d => d.id === id) : null;
@@ -1036,9 +886,8 @@ function showOfficerForm(id) {
   document.getElementById('of-position').value  = o ? o.position        : '';
   document.getElementById('of-committee').value = o ? (o.committee||'') : '';
 
-  const role = o ? (o.role || 'core') : 'core';
-  pendingRole = role;
-  setRole(role);
+  const role = o ? (o.role||'core') : 'core';
+  pendingRole = role; setRole(role);
 
   const preview = document.getElementById('of-photo-preview');
   const btn     = document.getElementById('of-photo-btn');
@@ -1046,12 +895,18 @@ function showOfficerForm(id) {
     preview.src = o.photo; preview.classList.remove('hidden');
     btn.classList.add('hidden'); pendingPhotoB64 = o.photo;
   } else { preview.classList.add('hidden'); btn.classList.remove('hidden'); }
+
+  document.getElementById('officer-form-modal').classList.remove('hidden');
   lucide.createIcons();
 }
 function hideOfficerForm() {
-  document.getElementById('officer-form-container').classList.add('hidden');
+  document.getElementById('officer-form-modal').classList.add('hidden');
   editingOfficerId = null; pendingPhotoB64 = null;
 }
+function handleOfficerModalBackdrop(e) {
+  if (e.target === document.getElementById('officer-form-modal')) hideOfficerForm();
+}
+
 async function saveOfficer() {
   const name      = document.getElementById('of-name').value.trim();
   const position  = document.getElementById('of-position').value.trim();
@@ -1096,10 +951,10 @@ function renderMeetings() {
   if (!meetings.length) { list.innerHTML=''; noEl.style.display=''; return; }
   noEl.style.display = 'none';
   list.innerHTML = meetings.map(m => `
-    <div class="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:ring-2 hover:ring-pink-200 transition relative group"
+    <div class="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:ring-2 hover:ring-pink-200 transition relative"
          onclick="openAttendance('${m.id}')">
       <p class="font-semibold text-gray-800 text-sm">${esc(m.meeting_title)}</p>
-      <p class="text-xs text-gray-400">${m.meeting_date}${m.meeting_description ? ' · '+esc(m.meeting_description) : ''}</p>
+      <p class="text-xs text-gray-400">${m.meeting_date}${m.meeting_description?' · '+esc(m.meeting_description):''}</p>
       <div class="absolute top-3 right-3 flex gap-1" onclick="event.stopPropagation()">
         <button onclick="editMeeting('${m.id}')" class="icon-btn-edit" title="Edit">${SVG_EDIT}</button>
         <button onclick="deleteMeeting('${m.id}')" class="icon-btn-delete" title="Delete">${SVG_TRASH}</button>
@@ -1107,18 +962,25 @@ function renderMeetings() {
     </div>`).join('');
 }
 
+// ── Meeting Form Modal ────────────────────────────────────────────────────────
 function showMeetingForm(id) {
   editingMeetingId = id || null;
-  document.getElementById('meeting-form-container').classList.remove('hidden');
   document.getElementById('meeting-form-title').textContent = id ? 'Edit Meeting' : 'Create Meeting';
   const m = id ? allData.find(d => d.id===id) : null;
-  document.getElementById('mf-title').value = m ? m.meeting_title            : '';
-  document.getElementById('mf-date').value  = m ? m.meeting_date             : '';
+  document.getElementById('mf-title').value = m ? m.meeting_title             : '';
+  document.getElementById('mf-date').value  = m ? m.meeting_date              : '';
   document.getElementById('mf-desc').value  = m ? (m.meeting_description||'') : '';
+  document.getElementById('meeting-form-modal').classList.remove('hidden');
+  lucide.createIcons();
 }
 function hideMeetingForm() {
-  document.getElementById('meeting-form-container').classList.add('hidden'); editingMeetingId = null;
+  document.getElementById('meeting-form-modal').classList.add('hidden');
+  editingMeetingId = null;
 }
+function handleMeetingModalBackdrop(e) {
+  if (e.target === document.getElementById('meeting-form-modal')) hideMeetingForm();
+}
+
 async function saveMeeting() {
   const meeting_title       = document.getElementById('mf-title').value.trim();
   const meeting_date        = document.getElementById('mf-date').value;
@@ -1153,76 +1015,63 @@ function openAttendance(meetingId) {
   currentMeeting = allData.find(d => d.id===meetingId);
   document.getElementById('meetings-list').style.display          = 'none';
   document.getElementById('no-meetings').style.display            = 'none';
-  document.getElementById('meeting-form-container').classList.add('hidden');
   document.getElementById('meetings-toolbar').style.display       = 'none';
   document.getElementById('attendance-view').classList.remove('hidden');
   document.getElementById('attendance-title').textContent = currentMeeting.meeting_title;
   document.getElementById('att-search').value = '';
-  buildAttCache();
-  renderAttendance();
+  buildAttCache(); renderAttendance();
 }
 function closeAttendance() {
   if (!currentMeeting) return;
-  currentMeeting = null;
-  _attCache = {};
+  currentMeeting = null; _attCache = {};
   document.getElementById('attendance-view').classList.add('hidden');
   document.getElementById('meetings-list').style.display    = '';
   document.getElementById('meetings-toolbar').style.display = '';
   renderMeetings();
 }
-
 function renderAttendance() {
   if (!currentMeeting) return;
-  const q        = (document.getElementById('att-search')?.value||'').toLowerCase();
+  const q = (document.getElementById('att-search')?.value||'').toLowerCase();
   const officers = getOfficers().filter(o =>
     o.name.toLowerCase().includes(q) ||
     (o.committee||'').toLowerCase().includes(q) ||
     (o.position ||'').toLowerCase().includes(q)
   );
-
-  let present = 0, absent = 0;
+  let present=0, absent=0;
   const allOfficers = getOfficers();
   for (const o of allOfficers) {
     const cached = _attCache[o.id];
-    if (cached?.status === 'present') present++;
-    else if (cached?.status === 'absent') absent++;
+    if (cached?.status==='present') present++; else if (cached?.status==='absent') absent++;
   }
   document.getElementById('att-present').textContent = present;
   document.getElementById('att-absent').textContent  = absent;
   document.getElementById('att-none').textContent    = allOfficers.length - present - absent;
 
-  const coreGroup    = officers.filter(o => (o.role || 'core') === 'core');
-  const memberGroups = groupByCommittee(officers.filter(o => o.role === 'member'));
-
+  const coreGroup    = officers.filter(o => (o.role||'core')==='core');
+  const memberGroups = groupByCommittee(officers.filter(o => o.role==='member'));
   let html = '';
-
   if (coreGroup.length) {
     html += `<div class="mb-6">
       <h3 class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2 px-1">⭐ Core Officers</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        ${coreGroup.map(o => attCard(o)).join('')}
-      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${coreGroup.map(o => attCard(o)).join('')}</div>
     </div>`;
   }
   for (const { label, members } of memberGroups) {
     html += `<div class="mb-6">
       <h3 class="text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2 px-1">👥 ${esc(label)}</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        ${members.map(o => attCard(o)).join('')}
-      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${members.map(o => attCard(o)).join('')}</div>
     </div>`;
   }
-
   document.getElementById('attendance-body').innerHTML = html;
 }
 
 function attCard(o) {
   const cached  = _attCache[o.id];
   const status  = cached ? cached.status : 'none';
-  const cardCls = status === 'present' ? 'att-card-present' : status === 'absent' ? 'att-card-absent' : 'att-card-none';
-  const label   = status === 'present' ? 'Present' : status === 'absent' ? 'Absent' : 'Not required';
-  const color   = status === 'present' ? 'text-green-600' : status === 'absent' ? 'text-red-500' : 'text-gray-400';
-  const hint    = status === 'none' ? 'Click to mark Present' : status === 'present' ? 'Click to mark Absent' : 'Click to remove from meeting';
+  const cardCls = status==='present'?'att-card-present':status==='absent'?'att-card-absent':'att-card-none';
+  const label   = status==='present'?'Present':status==='absent'?'Absent':'Not required';
+  const color   = status==='present'?'text-green-600':status==='absent'?'text-red-500':'text-gray-400';
+  const hint    = status==='none'?'Click to mark Present':status==='present'?'Click to mark Absent':'Click to remove from meeting';
   return `<div id="att-card-${o.id}" class="bg-white rounded-xl p-3 shadow-sm text-center att-card ${cardCls} cursor-pointer"
                onclick="toggleAttendance('${o.id}')" title="${hint}">
     <img src="${avatar(o)}" class="w-14 h-14 mx-auto rounded-full object-cover mb-2">
@@ -1231,59 +1080,43 @@ function attCard(o) {
   </div>`;
 }
 
-// ── Optimised toggle ──────────────────────────────────────────────────────────
 async function toggleAttendance(officerId) {
   if (!currentMeeting) return;
-
-  const cached    = _attCache[officerId];
-  const card      = document.getElementById('att-card-' + officerId);
-  const labelEl   = document.getElementById('att-label-' + officerId);
-
+  const cached = _attCache[officerId];
+  const card   = document.getElementById('att-card-' + officerId);
+  const labelEl= document.getElementById('att-label-' + officerId);
   let newStatus, oldRecordId;
-  if (!cached) {
-    newStatus = 'present';
-  } else if (cached.status === 'present') {
-    newStatus   = 'absent';
-    oldRecordId = cached.id;
-  } else {
-    newStatus   = 'none';
-    oldRecordId = cached.id;
-  }
+  if      (!cached)                    { newStatus = 'present'; }
+  else if (cached.status==='present')  { newStatus = 'absent';  oldRecordId = cached.id; }
+  else                                 { newStatus = 'none';    oldRecordId = cached.id; }
 
   if (card) {
     card.classList.remove('att-card-present','att-card-absent','att-card-none');
-    card.classList.add(newStatus === 'present' ? 'att-card-present' : newStatus === 'absent' ? 'att-card-absent' : 'att-card-none');
+    card.classList.add(newStatus==='present'?'att-card-present':newStatus==='absent'?'att-card-absent':'att-card-none');
   }
   if (labelEl) {
-    labelEl.textContent = newStatus === 'present' ? 'Present' : newStatus === 'absent' ? 'Absent' : 'Not required';
-    labelEl.className   = `text-[10px] font-medium ${newStatus === 'present' ? 'text-green-600' : newStatus === 'absent' ? 'text-red-500' : 'text-gray-400'}`;
+    labelEl.textContent = newStatus==='present'?'Present':newStatus==='absent'?'Absent':'Not required';
+    labelEl.className   = `text-[10px] font-medium ${newStatus==='present'?'text-green-600':newStatus==='absent'?'text-red-500':'text-gray-400'}`;
   }
 
   const prevStatus = cached ? cached.status : 'none';
-  const pEl = document.getElementById('att-present');
-  const aEl = document.getElementById('att-absent');
-  const nEl = document.getElementById('att-none');
-  let p = parseInt(pEl.textContent), a = parseInt(aEl.textContent), n = parseInt(nEl.textContent);
-  if (prevStatus === 'present') p--; else if (prevStatus === 'absent') a--; else n--;
-  if (newStatus  === 'present') p++; else if (newStatus  === 'absent') a++; else n++;
-  pEl.textContent = p; aEl.textContent = a; nEl.textContent = n;
+  const pEl=document.getElementById('att-present'), aEl=document.getElementById('att-absent'), nEl=document.getElementById('att-none');
+  let p=parseInt(pEl.textContent), a=parseInt(aEl.textContent), n=parseInt(nEl.textContent);
+  if (prevStatus==='present')p--;else if(prevStatus==='absent')a--;else n--;
+  if (newStatus ==='present')p++;else if(newStatus ==='absent')a++;else n++;
+  pEl.textContent=p; aEl.textContent=a; nEl.textContent=n;
 
-  if (newStatus === 'present') {
-    const item = { type:'attendance', id:genId(),
-      meeting_title: currentMeeting.meeting_title, meeting_date: currentMeeting.meeting_date,
-      officer_id: officerId, status: 'present' };
-    allData.push(item);
-    _attCache[officerId] = { status: 'present', id: item.id };
-    await persistSave(item);
-  } else if (newStatus === 'absent') {
-    const rec = allData.find(d => d.id === oldRecordId);
-    if (rec) { rec.status = 'absent'; _attCache[officerId] = { status: 'absent', id: rec.id }; await persistSave(rec); }
+  if (newStatus==='present') {
+    const item = { type:'attendance', id:genId(), meeting_title:currentMeeting.meeting_title, meeting_date:currentMeeting.meeting_date, officer_id:officerId, status:'present' };
+    allData.push(item); _attCache[officerId] = { status:'present', id:item.id }; await persistSave(item);
+  } else if (newStatus==='absent') {
+    const rec = allData.find(d => d.id===oldRecordId);
+    if (rec) { rec.status='absent'; _attCache[officerId]={ status:'absent', id:rec.id }; await persistSave(rec); }
   } else {
     await persistDelete(oldRecordId);
-    allData = allData.filter(d => d.id !== oldRecordId);
+    allData = allData.filter(d => d.id!==oldRecordId);
     delete _attCache[officerId];
   }
-
   renderDashboard();
 }
 
@@ -1293,13 +1126,8 @@ function showConfirm(msg, cb) {
   document.getElementById('confirm-overlay').classList.remove('hidden');
   confirmCallback = cb;
 }
-function confirmYes() {
-  document.getElementById('confirm-overlay').classList.add('hidden');
-  if (confirmCallback) confirmCallback(); confirmCallback = null;
-}
-function confirmNo() {
-  document.getElementById('confirm-overlay').classList.add('hidden'); confirmCallback = null;
-}
+function confirmYes() { document.getElementById('confirm-overlay').classList.add('hidden'); if (confirmCallback) confirmCallback(); confirmCallback=null; }
+function confirmNo()  { document.getElementById('confirm-overlay').classList.add('hidden'); confirmCallback=null; }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 function avatar(o) {
