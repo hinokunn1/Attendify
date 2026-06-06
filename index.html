@@ -143,9 +143,19 @@
     .role-btn.selected-core { border-color:#ec4899; background:#fdf2f8; color:#be185d; font-weight:600; }
     .role-btn.selected-member { border-color:#a78bfa; background:#f5f3ff; color:#6d28d9; font-weight:600; }
 
-    /* Logo area */
-    .logo-img { height:32px; max-width:140px; object-fit:contain; cursor:pointer; }
-    .logo-upload-btn { font-size:11px; color:#db2777; cursor:pointer; text-decoration:underline; }
+    /* Inline SVG icon buttons */
+    .icon-btn-edit {
+      width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+      border-radius:50%; background:#fdf2f8; color:#f472b6; border:none; cursor:pointer;
+      transition: background .15s, color .15s;
+    }
+    .icon-btn-edit:hover { background:#fce7f3; color:#be185d; }
+    .icon-btn-delete {
+      width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+      border-radius:50%; background:#fff1f2; color:#fca5a5; border:none; cursor:pointer;
+      transition: background .15s, color .15s;
+    }
+    .icon-btn-delete:hover { background:#fee2e2; color:#ef4444; }
   </style>
 </head>
 
@@ -167,7 +177,6 @@
 
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <!-- Logo -->
         <div class="flex items-center">
           <img src="logo.png" alt="Attendify" style="height:36px;width:auto;object-fit:contain;">
         </div>
@@ -188,7 +197,6 @@
       <!-- ── Dashboard ── -->
       <div id="view-dashboard" class="view active">
 
-        <!-- Stats row -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           <div class="bg-white rounded-xl p-4 shadow-sm text-center">
             <p class="text-2xl font-bold text-pink-600" id="stat-total-officers">0</p>
@@ -204,7 +212,6 @@
           </div>
         </div>
 
-        <!-- Rankings header -->
         <div class="flex items-center justify-between mb-3">
           <h2 class="font-semibold text-gray-800">Officer Rankings</h2>
           <button onclick="openRankingInfo()"
@@ -360,7 +367,6 @@
           </button>
         </div>
 
-        <!-- Two leaderboards -->
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">① Two separate leaderboards</p>
           <div class="rounded-xl overflow-hidden border border-gray-100 text-xs">
@@ -381,7 +387,6 @@
           </div>
         </div>
 
-        <!-- Step 2 -->
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">② Only required meetings count</p>
           <p class="text-xs text-gray-500 leading-relaxed mb-2">
@@ -403,7 +408,6 @@
           </div>
         </div>
 
-        <!-- Step 3 -->
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">③ Attendance rate = attended ÷ required</p>
           <div class="bg-pink-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
@@ -411,7 +415,6 @@
           </div>
         </div>
 
-        <!-- Step 4 -->
         <div class="mb-3">
           <p class="text-xs font-bold text-gray-700 mb-1.5">④ Same rate? More meetings wins.</p>
           <p class="text-xs text-gray-500 leading-relaxed">
@@ -419,7 +422,6 @@
           </p>
         </div>
 
-        <!-- Step 5 -->
         <div class="mb-4">
           <p class="text-xs font-bold text-gray-700 mb-1.5">⑤ 30% threshold to be ranked</p>
           <div class="bg-amber-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
@@ -439,7 +441,6 @@
     <div id="officer-profile-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
 
-        <!-- Header with avatar -->
         <div class="bg-gradient-to-br from-pink-500 to-pink-600 px-5 pt-5 pb-8 relative">
           <button onclick="closeOfficerProfile()" class="absolute top-4 right-4 text-white/70 hover:text-white">
             <i data-lucide="x" class="w-5 h-5"></i>
@@ -458,7 +459,6 @@
           </div>
         </div>
 
-        <!-- Stats strip -->
         <div class="grid grid-cols-3 -mt-4 mx-4 bg-white rounded-xl shadow-md overflow-hidden border border-pink-100">
           <div class="text-center py-3 px-2">
             <p id="op-rate"     class="text-lg font-bold text-pink-600"></p>
@@ -474,13 +474,11 @@
           </div>
         </div>
 
-        <!-- Rank + progress -->
         <div class="px-5 pt-5 pb-2">
           <div id="op-rank-row" class="flex items-center justify-between mb-3">
             <span id="op-rank-label" class="text-xs text-gray-500 font-medium">Overall Rank</span>
             <span id="op-rank-badge" class="text-sm font-bold px-3 py-1 rounded-full"></span>
           </div>
-          <!-- Progress bar -->
           <div id="op-bar-section" class="mb-4">
             <div class="flex justify-between text-[10px] text-gray-400 mb-1">
               <span>Attendance</span>
@@ -490,11 +488,9 @@
               <div id="op-bar-fill" class="h-full bg-pink-400 rounded-full transition-all duration-700"></div>
             </div>
           </div>
-          <!-- Threshold notice if unranked -->
           <div id="op-threshold-notice" class="hidden mb-4 bg-amber-50 rounded-xl px-3 py-2.5 text-xs text-amber-700 leading-relaxed"></div>
         </div>
 
-        <!-- Meeting history -->
         <div class="px-5 pb-5">
           <p class="text-xs font-bold text-gray-700 mb-2">Meeting History</p>
           <div id="op-meeting-history" class="space-y-1.5 max-h-40 overflow-y-auto pr-1"></div>
@@ -507,6 +503,10 @@
   </div><!-- end app-content -->
 
   <script>
+// ── SVG icon helpers (inline — no Lucide dependency for small buttons) ────────
+const SVG_EDIT = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const SVG_TRASH = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
@@ -519,7 +519,7 @@ let currentMeeting   = null;
 let confirmCallback  = null;
 let meetingSortDesc  = true;
 let pendingPhotoB64  = null;
-let pendingRole      = 'core'; // 'core' | 'member'
+let pendingRole      = 'core';
 
 // ── Attendance cache ──────────────────────────────────────────────────────────
 let _attCache = {};
@@ -542,7 +542,7 @@ async function persistDelete(itemId) {
 // ── Getters ───────────────────────────────────────────────────────────────────
 function getOfficers()  { return allData.filter(d => d.type === 'officer'); }
 function getMeetings()  { return allData.filter(d => d.type === 'meeting'); }
-function getCoreOfficers()   { return getOfficers().filter(o => (o.role || 'core') === 'core'); }
+function getCoreOfficers()     { return getOfficers().filter(o => (o.role || 'core') === 'core'); }
 function getCommitteeMembers() { return getOfficers().filter(o => o.role === 'member'); }
 function getAttendance(title, date) {
   return allData.filter(d => d.type === 'attendance' && d.meeting_title === title && d.meeting_date === date);
@@ -598,7 +598,6 @@ function openOfficerProfile(officerId) {
   const allAttendance = allData.filter(d => d.type === 'attendance');
   const isCore        = (o.role || 'core') === 'core';
 
-  // Determine which pool to rank within
   const pool = isCore ? getCoreOfficers() : getCommitteeMembers().filter(m => (m.committee||'') === (o.committee||''));
   const { rankedList, unrankedList, threshold, totalMeetings } = computeRankings(pool, allAttendance);
 
@@ -607,13 +606,11 @@ function openOfficerProfile(officerId) {
   const isRanked  = rankIndex !== -1;
   const pct       = stat ? Math.round(stat.rate * 100) : 0;
 
-  // Header
   document.getElementById('op-avatar').src            = avatar(o);
   document.getElementById('op-name').textContent      = o.name;
   document.getElementById('op-position').textContent  = o.position || '';
   document.getElementById('op-committee').textContent = o.committee ? o.committee : '';
 
-  // Role badge
   const roleBadge = document.getElementById('op-role-badge');
   if (isCore) {
     roleBadge.textContent = '⭐ Core Officer';
@@ -623,16 +620,13 @@ function openOfficerProfile(officerId) {
     roleBadge.className   = 'inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700';
   }
 
-  // Stats strip
   document.getElementById('op-rate').textContent     = stat ? pct + '%' : '—';
   document.getElementById('op-present').textContent  = stat ? stat.present : 0;
   document.getElementById('op-required').textContent = stat ? stat.required : 0;
 
-  // Rank label
   const rankLabelEl = document.getElementById('op-rank-label');
   rankLabelEl.textContent = isCore ? 'Core Officers Rank' : `Rank in ${o.committee || 'Committee'}`;
 
-  // Rank badge
   const badge   = document.getElementById('op-rank-badge');
   const rankRow = document.getElementById('op-rank-row');
   if (isRanked) {
@@ -645,7 +639,6 @@ function openOfficerProfile(officerId) {
     rankRow.classList.add('hidden');
   }
 
-  // Progress bar
   const barSection  = document.getElementById('op-bar-section');
   const thresholdEl = document.getElementById('op-threshold-notice');
   if (stat && stat.required > 0) {
@@ -666,7 +659,6 @@ function openOfficerProfile(officerId) {
     thresholdEl.classList.add('hidden');
   }
 
-  // Meeting history
   const officerRecords = allAttendance.filter(a => a.officer_id === officerId);
   const historyEl      = document.getElementById('op-meeting-history');
   const noHistoryEl    = document.getElementById('op-no-history');
@@ -701,7 +693,6 @@ function closeOfficerProfile() {
   document.getElementById('officer-profile-modal').classList.add('hidden');
 }
 function editFromProfile() {
-  // Get the officer id from the current profile. We track it via a data attribute.
   const modal = document.getElementById('officer-profile-modal');
   const id = modal.dataset.officerId;
   closeOfficerProfile();
@@ -733,8 +724,6 @@ function renderDashboard() {
   const rankBadgeCls = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
   const rateColor    = pct => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-amber-500' : 'text-red-500';
 
-  // rowClass: 'rank-row-core' | 'rank-row-committee'
-  // barColor: tailwind bg class
   const renderRow = (s, i, isRanked, topRate, rowClass, barColor) => {
     const pct      = Math.round(s.rate * 100);
     const barWidth = topRate > 0 && isRanked ? Math.round((s.rate / topRate) * 100) : pct;
@@ -850,7 +839,6 @@ function setRole(role) {
   const wrapper   = document.getElementById('committee-field-wrapper');
   coreBtn.className   = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role === 'core'   ? 'selected-core'   : 'text-gray-500');
   memberBtn.className = 'role-btn flex-1 py-2 rounded-lg text-sm ' + (role === 'member' ? 'selected-member' : 'text-gray-500');
-  // Committee field is useful for both but optional for core
   wrapper.style.opacity = role === 'core' ? '0.6' : '1';
 }
 
@@ -867,7 +855,6 @@ function renderOfficers() {
   if (!officers.length) { body.innerHTML = ''; noEl.classList.remove('hidden'); return; }
   noEl.classList.add('hidden');
 
-  // Separate core and committee members
   const core    = officers.filter(o => (o.role || 'core') === 'core');
   const members = officers.filter(o => o.role === 'member');
 
@@ -894,7 +881,6 @@ function renderOfficers() {
   }
 
   body.innerHTML = html;
-  lucide.createIcons();
 }
 
 function officerCard(o) {
@@ -909,8 +895,8 @@ function officerCard(o) {
     <p class="text-xs text-gray-400">${esc(o.position)}</p>
     ${badge}
     <div class="absolute top-2 right-2 flex gap-1" onclick="event.stopPropagation()">
-      <button onclick="editOfficer('${o.id}')"   class="w-6 h-6 flex items-center justify-center rounded-full bg-pink-50 text-pink-400 hover:bg-pink-100 hover:text-pink-600 transition"><i data-lucide="edit"    style="width:12px;height:12px;"></i></button>
-      <button onclick="deleteOfficer('${o.id}')" class="w-6 h-6 flex items-center justify-center rounded-full bg-red-50  text-red-300  hover:bg-red-100  hover:text-red-500  transition"><i data-lucide="trash-2" style="width:12px;height:12px;"></i></button>
+      <button onclick="editOfficer('${o.id}')" class="icon-btn-edit" title="Edit">${SVG_EDIT}</button>
+      <button onclick="deleteOfficer('${o.id}')" class="icon-btn-delete" title="Delete">${SVG_TRASH}</button>
     </div>
   </div>`;
 }
@@ -960,7 +946,6 @@ function showOfficerForm(id) {
   document.getElementById('of-position').value  = o ? o.position        : '';
   document.getElementById('of-committee').value = o ? (o.committee||'') : '';
 
-  // Set role
   const role = o ? (o.role || 'core') : 'core';
   pendingRole = role;
   setRole(role);
@@ -1026,12 +1011,12 @@ function renderMeetings() {
       <p class="font-semibold text-gray-800 text-sm">${esc(m.meeting_title)}</p>
       <p class="text-xs text-gray-400">${m.meeting_date}${m.meeting_description ? ' · '+esc(m.meeting_description) : ''}</p>
       <div class="absolute top-3 right-3 flex gap-1" onclick="event.stopPropagation()">
-        <button onclick="editMeeting('${m.id}')"   class="w-6 h-6 flex items-center justify-center rounded-full bg-pink-50 text-pink-400 hover:bg-pink-100 hover:text-pink-600 transition"><i data-lucide="edit"    style="width:12px;height:12px;"></i></button>
-        <button onclick="deleteMeeting('${m.id}')" class="w-6 h-6 flex items-center justify-center rounded-full bg-red-50  text-red-300  hover:bg-red-100  hover:text-red-500  transition"><i data-lucide="trash-2" style="width:12px;height:12px;"></i></button>
+        <button onclick="editMeeting('${m.id}')" class="icon-btn-edit" title="Edit">${SVG_EDIT}</button>
+        <button onclick="deleteMeeting('${m.id}')" class="icon-btn-delete" title="Delete">${SVG_TRASH}</button>
       </div>
     </div>`).join('');
-  lucide.createIcons();
 }
+
 function showMeetingForm(id) {
   editingMeetingId = id || null;
   document.getElementById('meeting-form-container').classList.remove('hidden');
@@ -1116,7 +1101,6 @@ function renderAttendance() {
   document.getElementById('att-absent').textContent  = absent;
   document.getElementById('att-none').textContent    = allOfficers.length - present - absent;
 
-  // Split for attendance display
   const coreGroup    = officers.filter(o => (o.role || 'core') === 'core');
   const memberGroups = groupByCommittee(officers.filter(o => o.role === 'member'));
 
