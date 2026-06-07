@@ -488,7 +488,7 @@
         </div>
         <div class="p-5 text-center">
           <p class="text-sm text-gray-600 mb-4 leading-relaxed">
-            Attendify is free to use. I built this project to help organizations manage attendance more easily and efficiently. If Attendify has been helpful to your organization, consider buying me a coffee to support future updates and improvements!
+            Attendify is free to use. If it has been helpful to your organization, consider buying the developer a coffee!
           </p>
           <div class="bg-blue-50 rounded-xl p-3 mb-3 inline-block">
             <img src="gcash.png" alt="GCash QR Code" class="w-48 h-48 object-contain mx-auto rounded-lg">
@@ -496,6 +496,29 @@
           <p class="text-xs text-gray-400 mb-1">Scan with GCash or any InstaPay app</p>
           <p class="text-xs font-semibold text-blue-600 mb-4">HE***N DA***L S. · 0993 960 ····</p>
           <p class="text-[10px] text-gray-300">Transfer fees may apply. Thank you for your support!</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Update Modal -->
+    <div id="update-modal" class="hidden fixed inset-0 bg-black/40 z-[999] flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
+        <div class="bg-gradient-to-br from-pink-500 to-pink-600 px-5 py-4">
+          <p class="text-white font-bold text-base">🎉 UPDATE v1.1!</p>
+          <p class="text-pink-100 text-xs mt-0.5">Here is what is new in Attendify</p>
+        </div>
+        <div class="p-5 space-y-4">
+          <div>
+            <p class="text-sm font-bold text-gray-800 mb-1">📸 Automatic Photo Compression</p>
+            <p class="text-xs text-gray-500 leading-relaxed">Profile photos are now automatically compressed before uploading. This keeps the app fast and storage efficient for everyone. You may notice photos appear slightly smaller in file size but this is expected and intentional.</p>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-gray-800 mb-1">☕ Support Attendify</p>
+            <p class="text-xs text-gray-500 leading-relaxed">You can now support the developer by tapping the Support button in the header. Every contribution helps keep Attendify free and running.</p>
+          </div>
+          <p class="text-[10px] text-gray-300 text-center">This message will only appear once.</p>
+          <button onclick="closeUpdatePopup()" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Got it!</button>
         </div>
       </div>
     </div>
