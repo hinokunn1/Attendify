@@ -1188,6 +1188,21 @@ lucide.createIcons();
 // ── Support Modal ─────────────────────────────────────────────────────────────
 function openSupportModal()  { document.getElementById('support-modal').classList.remove('hidden'); lucide.createIcons(); }
 function closeSupportModal() { document.getElementById('support-modal').classList.add('hidden'); }
+
+// ── Update popup ──────────────────────────────────────────────────────────────
+const CURRENT_VERSION = 'v1.1';
+function checkUpdatePopup() {
+  const seen = localStorage.getItem('attendify_update_seen');
+  if (seen !== CURRENT_VERSION) showUpdatePopup();
+}
+function showUpdatePopup() {
+  document.getElementById('update-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+function closeUpdatePopup() {
+  localStorage.setItem('attendify_update_seen', CURRENT_VERSION);
+  document.getElementById('update-modal').classList.add('hidden');
+}
   </script>
 
 </body>
