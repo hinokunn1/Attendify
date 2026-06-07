@@ -473,7 +473,6 @@
       </div>
     </div>
 
-
     <!-- GCash Support Modal -->
     <div id="support-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
@@ -500,7 +499,6 @@
       </div>
     </div>
 
-
     <!-- Update Modal -->
     <div id="update-modal" class="hidden fixed inset-0 bg-black/40 z-[999] flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
@@ -515,7 +513,7 @@
           </div>
           <div>
             <p class="text-sm font-bold text-gray-800 mb-1">☕ Support Attendify</p>
-            <p class="text-xs text-gray-500 leading-relaxed">You can now support the developer by tapping the Support button in the header. Every contribution helps keep Attendify free and running.</p>
+            <p class="text-xs text-gray-500 leading-relaxed">You can now support me by tapping the Support button in the header. Every contribution helps keep Attendify free and running.</p>
           </div>
           <p class="text-[10px] text-gray-300 text-center">This message will only appear once.</p>
           <button onclick="closeUpdatePopup()" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Got it!</button>
@@ -895,7 +893,6 @@ async function handlePhotoFile(e) {
   const preview = document.getElementById('of-photo-preview');
   const btn     = document.getElementById('of-photo-btn');
 
-  // Show local preview immediately while uploading
   const localUrl = URL.createObjectURL(file);
   preview.src = localUrl;
   preview.classList.remove('hidden');
@@ -1080,11 +1077,14 @@ function renderAttendance() {
     (o.committee||'').toLowerCase().includes(q) ||
     (o.position ||'').toLowerCase().includes(q)
   );
-  let present=0, absent=0;
+
+  // Recount from cache (single source of truth)
   const allOfficers = getOfficers();
+  let present = 0, absent = 0;
   for (const o of allOfficers) {
-    const cached = _attCache[o.id];
-    if (cached?.status==='present') present++; else if (cached?.status==='absent') absent++;
+    const s = _attCache[o.id]?.status;
+    if (s === 'present') present++;
+    else if (s === 'absent') absent++;
   }
   document.getElementById('att-present').textContent = present;
   document.getElementById('att-absent').textContent  = absent;
@@ -1121,44 +1121,80 @@ function attCard(o) {
     <span id="att-label-${o.id}" class="text-[10px] font-medium ${color}">${label}</span>
   </div>`;
 }
+
+// ── toggleAttendance — spam-click safe ────────────────────────────────────────
+const _toggling = new Set();
+
 async function toggleAttendance(officerId) {
   if (!currentMeeting) return;
-  const cached  = _attCache[officerId];
-  const card    = document.getElementById('att-card-' + officerId);
-  const labelEl = document.getElementById('att-label-' + officerId);
-  let newStatus, oldRecordId;
-  if      (!cached)                   { newStatus = 'present'; }
-  else if (cached.status==='present') { newStatus = 'absent';  oldRecordId = cached.id; }
-  else                                { newStatus = 'none';    oldRecordId = cached.id; }
+  if (_toggling.has(officerId)) return;   // busy signal: ignore spam clicks
+  _toggling.add(officerId);
 
-  if (card) {
-    card.classList.remove('att-card-present','att-card-absent','att-card-none');
-    card.classList.add(newStatus==='present'?'att-card-present':newStatus==='absent'?'att-card-absent':'att-card-none');
-  }
-  if (labelEl) {
-    labelEl.textContent = newStatus==='present'?'Present':newStatus==='absent'?'Absent':'Not required';
-    labelEl.className   = `text-[10px] font-medium ${newStatus==='present'?'text-green-600':newStatus==='absent'?'text-red-500':'text-gray-400'}`;
-  }
+  try {
+    const cached = _attCache[officerId];
+    let newStatus, oldRecordId;
 
-  const prevStatus = cached ? cached.status : 'none';
-  const pEl=document.getElementById('att-present'), aEl=document.getElementById('att-absent'), nEl=document.getElementById('att-none');
-  let p=parseInt(pEl.textContent), a=parseInt(aEl.textContent), n=parseInt(nEl.textContent);
-  if (prevStatus==='present')p--;else if(prevStatus==='absent')a--;else n--;
-  if (newStatus ==='present')p++;else if(newStatus ==='absent')a++;else n++;
-  pEl.textContent=p; aEl.textContent=a; nEl.textContent=n;
+    if      (!cached)                    { newStatus = 'present'; }
+    else if (cached.status === 'present'){ newStatus = 'absent';  oldRecordId = cached.id; }
+    else                                 { newStatus = 'none';    oldRecordId = cached.id; }
 
-  if (newStatus==='present') {
-    const item = { type:'attendance', id:genId(), meeting_title:currentMeeting.meeting_title, meeting_date:currentMeeting.meeting_date, officer_id:officerId, status:'present' };
-    allData.push(item); _attCache[officerId]={ status:'present', id:item.id }; await persistSave(item);
-  } else if (newStatus==='absent') {
-    const rec = allData.find(d => d.id===oldRecordId);
-    if (rec) { rec.status='absent'; _attCache[officerId]={ status:'absent', id:rec.id }; await persistSave(rec); }
-  } else {
-    await persistDelete(oldRecordId);
-    allData = allData.filter(d => d.id!==oldRecordId);
-    delete _attCache[officerId];
+    // 1. Update cache SYNCHRONOUSLY — must happen before any await
+    if (newStatus === 'none') {
+      delete _attCache[officerId];
+    } else {
+      const reservedId = (newStatus === 'present') ? genId() : (cached?.id ?? genId());
+      _attCache[officerId] = { status: newStatus, id: reservedId };
+    }
+
+    // 2. Update card UI instantly
+    const card    = document.getElementById('att-card-' + officerId);
+    const labelEl = document.getElementById('att-label-' + officerId);
+    if (card) {
+      card.classList.remove('att-card-present', 'att-card-absent', 'att-card-none');
+      card.classList.add(newStatus === 'present' ? 'att-card-present'
+                       : newStatus === 'absent'  ? 'att-card-absent' : 'att-card-none');
+    }
+    if (labelEl) {
+      labelEl.textContent = newStatus === 'present' ? 'Present'
+                          : newStatus === 'absent'  ? 'Absent' : 'Not required';
+      labelEl.className = `text-[10px] font-medium ${
+        newStatus === 'present' ? 'text-green-600'
+        : newStatus === 'absent' ? 'text-red-500' : 'text-gray-400'}`;
+    }
+
+    // 3. Recount from cache — never from incremental math
+    const allOfficers = getOfficers();
+    let p = 0, a = 0;
+    for (const o of allOfficers) {
+      const s = _attCache[o.id]?.status;
+      if (s === 'present') p++;
+      else if (s === 'absent') a++;
+    }
+    document.getElementById('att-present').textContent = p;
+    document.getElementById('att-absent').textContent  = a;
+    document.getElementById('att-none').textContent    = allOfficers.length - p - a;
+
+    // 4. Persist to Firestore
+    if (newStatus === 'present') {
+      const newId = _attCache[officerId].id;
+      const item  = { type: 'attendance', id: newId,
+                      meeting_title: currentMeeting.meeting_title,
+                      meeting_date:  currentMeeting.meeting_date,
+                      officer_id: officerId, status: 'present' };
+      allData.push(item);
+      await persistSave(item);
+    } else if (newStatus === 'absent') {
+      const rec = allData.find(d => d.id === oldRecordId);
+      if (rec) { rec.status = 'absent'; await persistSave(rec); }
+    } else {
+      await persistDelete(oldRecordId);
+      allData = allData.filter(d => d.id !== oldRecordId);
+    }
+
+    renderDashboard();
+  } finally {
+    _toggling.delete(officerId);   // always release lock, even if Firestore fails
   }
-  renderDashboard();
 }
 
 // ── Confirm dialog ────────────────────────────────────────────────────────────
