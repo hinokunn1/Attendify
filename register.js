@@ -132,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       authScreen.style.display = "none";
       appContent.style.display = "block";
       if (typeof renderAll === "function") renderAll();
+      if (typeof checkUpdatePopup === "function") checkUpdatePopup();
       if (typeof lucide !== "undefined") lucide.createIcons();
       if (typeof window.resolveSplash === "function") window.resolveSplash(true);
     } else {
